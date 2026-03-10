@@ -1,0 +1,9 @@
+Reinforcement Learning from Human Feedback (RLHF)
+
+RLHF is a technique for aligning language models with human preferences by training a reward model from human feedback and using it to fine-tune the language model via reinforcement learning. RLHF was a key component in training ChatGPT and InstructGPT.
+
+The RLHF pipeline has three stages. First, supervised fine-tuning (SFT) trains the model on high-quality demonstration data written by human labelers. Second, reward modeling collects comparison data where labelers rank model outputs from best to worst, and a reward model is trained to predict these human preferences. Third, the language model is optimized against the reward model using Proximal Policy Optimization (PPO).
+
+The reward model learns a scalar score for any (prompt, response) pair that correlates with human preferences. During PPO training, the language model generates responses and receives reward signals from the reward model. A KL-divergence penalty prevents the policy from diverging too far from the SFT model, maintaining response quality and diversity.
+
+Direct Preference Optimization (DPO), introduced by Rafailov et al. in 2023, simplifies RLHF by directly optimizing the language model on preference pairs without training a separate reward model. DPO reparameterizes the reward model as a function of the language model itself, reducing training complexity while achieving comparable or better alignment results.

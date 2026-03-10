@@ -1,0 +1,9 @@
+Evaluation Metrics for NLP and RAG Systems
+
+Evaluating the quality of language model outputs and RAG systems requires a combination of automated metrics and human evaluation. Different metrics capture different aspects of quality, and no single metric is sufficient.
+
+For question answering, common metrics include Exact Match (EM), which checks if the predicted answer exactly matches the ground truth, and F1 score, which measures token-level overlap between prediction and ground truth. These metrics are simple and deterministic but may penalize valid paraphrases.
+
+RAG-specific evaluation frameworks like RAGAS assess multiple dimensions: faithfulness measures whether the answer is grounded in the retrieved context, answer relevance measures whether the answer addresses the query, context precision measures whether the retrieved documents are relevant, and context recall measures whether all relevant information was retrieved. These dimensions are computed using LLM-as-judge evaluations or token overlap heuristics.
+
+Perplexity measures how well a language model predicts a held-out test set and is the standard metric for comparing language models. BLEU and ROUGE are n-gram overlap metrics used for translation and summarization. BERTScore uses contextualized embeddings to compute semantic similarity between predictions and references. Human evaluation remains the gold standard but is expensive and slow, making automated metrics essential for rapid iteration.

@@ -1,0 +1,9 @@
+In-Context Learning
+
+In-context learning (ICL) is the ability of large language models to learn tasks from examples provided in the input prompt, without any gradient updates to the model's parameters. This capability was first systematically studied in GPT-3, where providing a few input-output examples in the prompt enabled the model to perform diverse tasks.
+
+ICL operates through three regimes. Zero-shot learning provides only a task description. Few-shot learning includes several (typically 1-32) input-output examples. Many-shot learning provides hundreds or thousands of examples within the context window.
+
+The mechanism behind ICL is not fully understood. One hypothesis is that ICL performs implicit Bayesian inference, using the examples to identify the task and then applying knowledge learned during pre-training. Another view, supported by Akyurek et al. (2023), suggests that Transformer attention layers implement mesa-optimization, essentially running a learning algorithm (similar to gradient descent) within their forward pass.
+
+The effectiveness of ICL depends on several factors: the order of examples matters (different orderings can cause up to 30% variance in accuracy), the format of examples affects performance, and the choice of examples (selecting examples similar to the test query) can dramatically improve results. ICL is sensitive to surface-level features like label distribution and prompt formatting.

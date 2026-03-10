@@ -1,0 +1,9 @@
+Cross-Encoder Reranking
+
+Cross-encoder reranking is a retrieval technique where an initial set of candidate documents retrieved by a fast first-stage retriever (like BM25 or dense retrieval) is re-scored by a more expensive but more accurate cross-encoder model. This two-stage approach balances efficiency with retrieval quality.
+
+Unlike bi-encoders that independently embed the query and document, cross-encoders jointly process the query-document pair through a single Transformer. This allows full token-level interaction between the query and document, capturing fine-grained relevance signals that bi-encoders miss. Cross-encoders typically achieve 5-15% higher accuracy but are 100-1000x slower than bi-encoders.
+
+Popular cross-encoder models include ms-marco-MiniLM-L-6-v2 (fast, trained on MS MARCO passage ranking), BGE-reranker-v2-m3 (multilingual, strong accuracy), and Cohere Rerank (commercial API). The choice of reranker depends on the trade-off between latency and accuracy requirements.
+
+In a RAG pipeline, reranking works as follows: retrieve top-k candidates (typically 20-50) using a fast retriever, then re-score all candidates with the cross-encoder, and finally keep the top-n (typically 3-5) highest-scoring documents for the generation step. The reranking step adds latency but significantly improves context quality, which directly impacts the faithfulness and accuracy of generated answers.

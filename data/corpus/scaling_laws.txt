@@ -1,0 +1,9 @@
+Scaling Laws for Neural Language Models
+
+Scaling laws describe the empirical relationship between model performance and three key factors: model size (number of parameters), dataset size (number of tokens), and compute budget (FLOPs). Research by Kaplan et al. at OpenAI (2020) showed that loss scales as a power law with each of these factors.
+
+The key findings were: performance improves smoothly and predictably as models get larger; larger models are more sample-efficient, requiring fewer tokens to reach the same loss; and for a fixed compute budget, there is an optimal allocation between model size and data size.
+
+The Chinchilla paper by Hoffmann et al. at DeepMind (2022) refined these scaling laws. They found that previous models like GPT-3 were significantly undertrained relative to their size. Chinchilla, with 70 billion parameters trained on 1.4 trillion tokens, outperformed the 280 billion parameter Gopher trained on 300 billion tokens. The Chinchilla-optimal ratio is approximately 20 tokens per parameter.
+
+These scaling laws have profoundly influenced LLM development. They allow researchers to predict performance before training, optimize compute allocation, and make informed decisions about model architecture. The laws also suggest that performance improvements from scaling alone will eventually plateau, motivating research into more efficient architectures and training methods.

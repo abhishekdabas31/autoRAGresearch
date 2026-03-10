@@ -1,0 +1,9 @@
+Query Expansion Techniques
+
+Query expansion improves retrieval performance by augmenting the original user query with additional terms or reformulations before searching the document index. This addresses the vocabulary mismatch problem, where users and documents may use different terms for the same concept.
+
+Traditional query expansion uses pseudo-relevance feedback: retrieve initial results, extract important terms from top-ranked documents, and add these terms to the query for a second retrieval pass. This unsupervised approach improves recall but can introduce topic drift if the initial results are off-topic.
+
+LLM-based query expansion generates multiple reformulations of the original query using a language model. For example, given the query "What causes diabetes?", the LLM might generate: "What are the risk factors for diabetes?", "How does insulin resistance lead to diabetes?", and "What is the etiology of type 2 diabetes?". Each reformulation is used to retrieve documents independently, and the results are merged.
+
+Multi-query retrieval is a specific form of query expansion where the LLM generates N different versions of the query, retrieves top-k documents for each version, and takes the union of all retrieved documents. This increases recall at the cost of N additional retrieval calls. The retrieved documents can then be reranked using a cross-encoder to restore precision. Query expansion is most effective when the original query is short or ambiguous.

@@ -1,0 +1,9 @@
+Context Window and Long-Context Models
+
+The context window is the maximum number of tokens a language model can process in a single forward pass. Early Transformers had short context windows (512 tokens for BERT, 1024 for GPT-2) due to the quadratic memory complexity of self-attention. Modern models have dramatically expanded context windows.
+
+GPT-4 supports 128K tokens. Claude 3 handles 200K tokens. Gemini 1.5 Pro processes up to 1 million tokens. These expansions were enabled by architectural innovations like Flash Attention, sparse attention patterns, and positional encoding improvements such as RoPE (Rotary Position Embedding) and ALiBi.
+
+Long-context models face the "lost in the middle" problem: they tend to pay more attention to information at the beginning and end of the context, sometimes missing relevant information in the middle. This has implications for RAG systems, where the placement of retrieved documents in the context can affect generation quality.
+
+Techniques for extending context length include: sliding window attention (Mistral), where attention is limited to a local window; grouped-query attention (GQA), which reduces KV-cache memory by sharing key-value heads; and retrieval-augmented approaches that selectively load relevant context from a larger document store. The trade-off between context length and inference cost is a key design decision for deployed LLM systems.

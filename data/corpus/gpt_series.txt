@@ -1,0 +1,9 @@
+GPT: Generative Pre-trained Transformer Series
+
+The GPT series from OpenAI uses the Transformer decoder architecture for autoregressive language modeling. GPT-1 (2018) demonstrated that generative pre-training on a large corpus followed by discriminative fine-tuning achieves strong results on diverse NLP tasks. It had 117 million parameters and was trained on the BooksCorpus.
+
+GPT-2 (2019) scaled to 1.5 billion parameters and was trained on WebText, a dataset of 8 million web pages. GPT-2 showed that language models can perform tasks zero-shot, without any task-specific fine-tuning, by framing tasks as text generation. OpenAI initially withheld the full model due to concerns about misuse.
+
+GPT-3 (2020) scaled dramatically to 175 billion parameters and introduced few-shot learning via in-context learning. By providing a few examples in the prompt, GPT-3 could perform tasks it was never explicitly trained for. The paper showed that performance scales predictably with model size, dataset size, and compute.
+
+GPT-4 (2023) is a multimodal model accepting both text and image inputs. While OpenAI did not disclose architectural details, GPT-4 demonstrated significant improvements in reasoning, factual accuracy, and instruction following compared to GPT-3.5. It achieves human-level performance on many professional and academic benchmarks.

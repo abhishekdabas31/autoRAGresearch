@@ -1,0 +1,9 @@
+Sequence-to-Sequence Models
+
+Sequence-to-sequence (seq2seq) models transform an input sequence into an output sequence, making them suitable for tasks like translation, summarization, and question answering. The Transformer architecture supports three main paradigms: encoder-only (BERT), decoder-only (GPT), and encoder-decoder (T5, BART).
+
+The encoder-decoder architecture processes the input through the encoder, which produces contextualized representations, and then generates the output autoregressively through the decoder, which attends to the encoder output via cross-attention. T5 (Text-to-Text Transfer Transformer) frames all NLP tasks as text-to-text problems: translation, summarization, classification, and question answering all use the same architecture and training procedure.
+
+BART (Bidirectional and Auto-Regressive Transformer) is a denoising autoencoder that uses the encoder-decoder architecture. It is pre-trained by corrupting text with various noise functions and learning to reconstruct the original. BART excels at generation tasks like summarization and is the foundation for the mBART multilingual model.
+
+Despite the theoretical advantages of encoder-decoder models for conditional generation tasks, decoder-only models have become dominant for general-purpose LLMs. Scaling experiments showed that decoder-only models achieve comparable or better performance with simpler architectures and training pipelines. However, encoder-decoder models remain competitive for specific tasks like translation and structured output generation.

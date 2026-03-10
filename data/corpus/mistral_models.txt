@@ -1,0 +1,9 @@
+Mistral AI Models
+
+Mistral AI, a French AI company founded in 2023, has released several influential open-weight language models. Mistral 7B, their first release, outperformed LLaMA 2 13B on all benchmarks despite being half the size, demonstrating significant architectural and training improvements.
+
+Mistral 7B introduced sliding window attention (SWA) with a window size of 4096 tokens, allowing it to handle sequences much longer than the window by letting information propagate through layers. Combined with Flash Attention 2 and grouped-query attention, Mistral 7B achieved excellent inference speed while maintaining quality.
+
+Mixtral 8x7B is Mistral's Mixture of Experts model with 8 expert FFNs per layer and top-2 routing. Despite 47B total parameters, it activates only 13B per forward pass, matching LLaMA 2 70B performance at a fraction of the inference cost. Mixtral demonstrated that MoE can be practical at moderate scale.
+
+Mistral models are available through Ollama and can be run locally with reasonable hardware requirements. Mistral 7B in 4-bit quantization requires about 4GB of RAM, making it accessible on most modern computers. The efficiency-to-quality ratio of Mistral models makes them popular choices for local RAG systems where inference speed matters.

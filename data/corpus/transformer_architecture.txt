@@ -1,0 +1,9 @@
+The Transformer Architecture
+
+The Transformer is a deep learning architecture introduced in the 2017 paper "Attention Is All You Need" by Vaswani et al. at Google Brain. Unlike recurrent neural networks (RNNs) that process tokens sequentially, the Transformer processes all positions in a sequence simultaneously through self-attention mechanisms. This parallelism makes Transformers significantly faster to train on modern GPU hardware.
+
+The architecture consists of an encoder and a decoder, each composed of stacked layers. Each encoder layer has two sub-layers: a multi-head self-attention mechanism and a position-wise feed-forward network. Each decoder layer adds a third sub-layer for cross-attention over the encoder output. Residual connections and layer normalization are applied around each sub-layer.
+
+The Transformer introduced the scaled dot-product attention formula: Attention(Q, K, V) = softmax(QK^T / sqrt(d_k))V, where Q, K, and V are query, key, and value matrices, and d_k is the dimension of the keys. This scaling factor prevents the dot products from growing too large, which would push the softmax into regions with extremely small gradients.
+
+The original Transformer used 6 encoder layers and 6 decoder layers, with a model dimension of 512 and 8 attention heads. It was trained on the WMT 2014 English-to-German and English-to-French translation tasks and achieved state-of-the-art BLEU scores while requiring significantly less training time than previous models.

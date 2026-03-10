@@ -1,0 +1,9 @@
+Mixture of Experts (MoE)
+
+Mixture of Experts is an architecture pattern where the feed-forward network in each Transformer layer is replaced by multiple expert FFNs, with a gating network that routes each token to a subset of experts. This allows the model to have more total parameters while only activating a fraction of them for each input, achieving better compute efficiency.
+
+The Switch Transformer by Google (2021) simplified MoE by routing each token to a single expert. Mixtral 8x7B by Mistral AI (2023) uses 8 expert FFNs per layer with top-2 routing, meaning each token is processed by 2 of the 8 experts. Despite having 47B total parameters, Mixtral only uses 13B parameters per forward pass, achieving performance comparable to LLaMA 2 70B at much lower inference cost.
+
+The gating function, typically a simple linear layer followed by softmax or top-k selection, determines which experts process each token. Load balancing is crucial: if some experts are used much more than others, the model wastes capacity. Auxiliary losses encourage balanced expert utilization during training.
+
+MoE presents unique challenges for deployment. The full model must fit in memory even though only a fraction of parameters are active per token. Expert parallelism across GPUs requires careful placement to minimize communication. Despite these challenges, MoE has become the dominant approach for scaling models beyond a trillion parameters, as demonstrated by GPT-4 (rumored to use MoE) and Google's DeepMind models.

@@ -1,0 +1,9 @@
+Efficient Attention Variants
+
+The quadratic complexity of standard self-attention (O(n^2) in sequence length) has motivated extensive research into more efficient attention mechanisms. These variants trade off some modeling quality for improved computational and memory efficiency, enabling longer sequence processing.
+
+Sparse attention limits each token to attend to a fixed subset of other tokens rather than all tokens. Longformer uses a combination of local sliding window attention and global attention on special tokens. BigBird combines random, window, and global attention patterns. These approaches achieve O(n) or O(n*sqrt(n)) complexity.
+
+Linear attention replaces the softmax attention kernel with a linear kernel function, decomposing the attention computation into separate query-key and key-value products. This enables O(n) complexity. Performers use random feature approximations of the softmax kernel. RetNet (Retentive Network) uses exponential decay attention that can be computed recurrently, combining the training parallelism of Transformers with O(1) inference complexity per token.
+
+Multi-query attention (MQA) and grouped-query attention (GQA) reduce the memory bandwidth requirements of attention by sharing key and value projections across attention heads. GQA, used in LLaMA 2 and Mistral, divides heads into groups where each group shares a single key-value head. This reduces KV-cache size by 4-8x with minimal quality degradation, significantly improving inference throughput.

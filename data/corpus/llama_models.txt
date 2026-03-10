@@ -1,0 +1,9 @@
+LLaMA: Large Language Model Meta AI
+
+LLaMA (Large Language Model Meta AI), released by Meta in February 2023, is a family of open-weight language models that demonstrated smaller, well-trained models can match or exceed larger models. LLaMA was trained following the Chinchilla scaling laws, using more data relative to model size than previous open models.
+
+LLaMA 1 came in four sizes: 7B, 13B, 33B, and 65B parameters, trained on 1-1.4 trillion tokens from publicly available datasets. LLaMA-13B outperformed GPT-3 (175B) on most benchmarks, demonstrating the importance of training data quantity and quality over raw model size.
+
+LLaMA 2, released in July 2023, expanded to sizes of 7B, 13B, and 70B with a 4K context window. It was trained on 2 trillion tokens and included LLaMA 2 Chat models fine-tuned with RLHF for dialogue applications. LLaMA 2 used grouped-query attention (GQA) in the 70B variant for improved inference efficiency.
+
+LLaMA 3, released in 2024, further scaled the training data to 15 trillion tokens and introduced an 8K context window. The LLaMA 3 8B model approaches the performance of LLaMA 2 70B. LLaMA 3.2 includes 1B and 3B models optimized for edge deployment. The LLaMA family has become the foundation for numerous derivative models including Vicuna, Alpaca, CodeLlama, and Mistral (which uses a similar architecture).

@@ -1,0 +1,9 @@
+LoRA: Low-Rank Adaptation
+
+LoRA (Low-Rank Adaptation) is a parameter-efficient fine-tuning method introduced by Hu et al. (2021) that freezes the pre-trained model weights and injects trainable low-rank decomposition matrices into each layer. Instead of updating the full weight matrix W, LoRA adds a low-rank update: W' = W + BA, where B and A are small matrices with rank r << d.
+
+For a weight matrix W of shape d x d, full fine-tuning updates d^2 parameters. LoRA only trains 2*d*r parameters (for matrices A and B), where r is typically 4-64. With r=16 and d=4096, this reduces trainable parameters from 16.7M to 131K per layer — a 128x reduction.
+
+LoRA is applied to attention projection matrices (Q, K, V, and output projections) and sometimes to FFN layers. The low-rank constraint acts as a regularizer, often preventing overfitting on small datasets. LoRA adapters can be merged into the base model at inference time, adding zero latency. Multiple LoRA adapters can also be swapped or combined for different tasks.
+
+QLoRA (Quantized LoRA) combines 4-bit quantization of the base model with LoRA fine-tuning, enabling fine-tuning of 65B parameter models on a single 48GB GPU. This democratized LLM fine-tuning, making it accessible to researchers and practitioners without access to large compute clusters.

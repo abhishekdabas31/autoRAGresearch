@@ -1,0 +1,9 @@
+Prompt Engineering
+
+Prompt engineering is the practice of designing input prompts to elicit desired behaviors from language models. As LLMs became capable of in-context learning, the way tasks are framed in the prompt became a critical factor in performance.
+
+Key prompting strategies include: zero-shot prompting (describe the task without examples), few-shot prompting (provide examples of desired input-output pairs), chain-of-thought prompting (include reasoning steps in examples), and system prompts (define the model's role and constraints at the beginning of the conversation).
+
+The structure of prompts matters significantly. Clear task descriptions improve performance. Separating instructions from context with delimiters reduces confusion. Specifying the output format (JSON, markdown, etc.) improves consistency. Providing negative examples of what not to do can be as helpful as positive examples.
+
+Advanced techniques include: ReAct (Reasoning + Acting) where the model alternates between thinking and tool use; Tree of Thoughts where the model explores multiple reasoning paths; and retrieval-augmented prompting where relevant context is dynamically inserted. For RAG systems, the system prompt is particularly important: it instructs the model to answer only from provided context, reducing hallucination. Prompt sensitivity remains a challenge — small wording changes can cause large performance differences.

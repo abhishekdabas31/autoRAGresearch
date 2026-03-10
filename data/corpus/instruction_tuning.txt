@@ -1,0 +1,9 @@
+Instruction Tuning
+
+Instruction tuning is the process of fine-tuning a pre-trained language model on a dataset of (instruction, response) pairs to improve its ability to follow human instructions. This technique bridges the gap between the next-token-prediction objective used in pre-training and the instruction-following behavior users expect.
+
+FLAN (Fine-tuned Language Net) by Google (2022) demonstrated that instruction tuning on a diverse set of tasks framed as instructions dramatically improves zero-shot performance on unseen tasks. FLAN-T5 and FLAN-PaLM showed consistent gains across model scales.
+
+InstructGPT by OpenAI (2022) combined instruction tuning with reinforcement learning from human feedback (RLHF). Human labelers wrote demonstrations of desired behavior and ranked model outputs, creating training signals that align the model with human preferences. The resulting model was preferred by humans despite being much smaller than GPT-3.
+
+Modern instruction-tuned models like LLaMA-Chat, Vicuna, and Mistral Instruct are typically created in multiple stages: first pre-training on large text corpora, then supervised fine-tuning on curated instruction data, and optionally RLHF or DPO (Direct Preference Optimization) for further alignment. The quality and diversity of instruction data are often more important than quantity.

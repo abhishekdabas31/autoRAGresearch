@@ -1,0 +1,9 @@
+Hallucination in Language Models
+
+Hallucination refers to language models generating text that is fluent and plausible-sounding but factually incorrect or unsupported by the input context. Hallucination is one of the most significant challenges for deploying LLMs in production, particularly for knowledge-intensive tasks.
+
+Hallucinations are classified into two types. Intrinsic hallucinations contradict the provided source material. Extrinsic hallucinations contain information that cannot be verified from the source, neither confirmed nor contradicted. Both types are problematic for applications requiring factual accuracy.
+
+Several factors contribute to hallucination. During pre-training, the model learns statistical patterns that may include factual errors in the training data. The training objective (next-token prediction) rewards fluency over accuracy. Models may also "confuse" information from different contexts or generate plausible-sounding but invented details to maintain coherence.
+
+RAG (Retrieval-Augmented Generation) is one of the most effective approaches to reducing hallucination. By providing relevant documents as context and instructing the model to answer only from that context, RAG grounds the model's outputs in verifiable information. Other mitigation strategies include: calibrating confidence (the model expresses uncertainty when unsure), factual consistency checking (comparing generated text against source documents), and self-consistency (generating multiple responses and selecting the most consistent one).

@@ -1,0 +1,9 @@
+Vision Transformers (ViT)
+
+The Vision Transformer (ViT), introduced by Dosovitskiy et al. (2020) at Google, applies the Transformer architecture directly to image recognition. An image is divided into fixed-size patches (typically 16x16 pixels), each patch is linearly embedded into a vector, and the sequence of patch embeddings is processed by a standard Transformer encoder.
+
+A special [CLS] token is prepended to the patch sequence, and its final representation is used for classification. Position embeddings are added to encode spatial information. With sufficient training data, ViT matches or exceeds the performance of state-of-the-art convolutional neural networks while being conceptually simpler.
+
+ViT initially required pre-training on very large datasets (JFT-300M) to outperform CNNs. DeiT (Data-efficient Image Transformers) showed that ViT can be trained effectively on ImageNet alone using strong data augmentation and knowledge distillation. This democratized vision transformers for researchers without access to proprietary datasets.
+
+Subsequent work extended ViT in many directions: Swin Transformer introduced hierarchical feature maps with shifted window attention for dense prediction tasks. DINO and DINOv2 demonstrated powerful self-supervised learning with ViTs. MAE (Masked Autoencoder) adapted the masked language modeling paradigm to vision by masking random image patches and reconstructing them.

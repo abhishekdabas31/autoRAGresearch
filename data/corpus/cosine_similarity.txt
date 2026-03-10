@@ -1,0 +1,9 @@
+Cosine Similarity and Distance Metrics
+
+Cosine similarity is the most commonly used metric for comparing embedding vectors in information retrieval and RAG systems. It measures the cosine of the angle between two vectors, ranging from -1 (opposite directions) to 1 (same direction), with 0 indicating orthogonality.
+
+The formula is: cos_sim(A, B) = (A · B) / (||A|| * ||B||), where A · B is the dot product and ||A||, ||B|| are the L2 norms. For normalized vectors (unit length), cosine similarity equals the dot product, making it computationally efficient. Most modern embedding models produce normalized vectors by default.
+
+Euclidean (L2) distance measures the straight-line distance between two points in vector space. It is related to cosine similarity for normalized vectors: L2_distance^2 = 2 - 2 * cos_sim. L2 distance is sensitive to vector magnitude, which can be problematic when comparing embeddings of different-length texts.
+
+Manhattan (L1) distance sums the absolute differences across dimensions and is more robust to outliers than L2. Inner product (dot product) combines both magnitude and direction similarity. When vectors are not normalized, dot product and cosine similarity can give different rankings. For retrieval tasks with normalized embeddings, cosine similarity and dot product produce identical rankings, so FAISS's IndexFlatIP (inner product) is commonly used for efficiency.

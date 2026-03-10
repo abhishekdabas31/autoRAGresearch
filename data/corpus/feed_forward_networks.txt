@@ -1,0 +1,9 @@
+Feed-Forward Networks in Transformers
+
+Each Transformer layer contains a position-wise feed-forward network (FFN) applied independently to each position. The FFN consists of two linear transformations with a nonlinear activation in between: FFN(x) = W_2 * activation(W_1 * x + b_1) + b_2. In the original Transformer, the inner dimension is 2048 (4 times the model dimension of 512) and the activation function is ReLU.
+
+The FFN is where most of the model's parameters reside. In a standard Transformer layer, the FFN parameters outnumber the attention parameters by a factor of about 2-3x. Research suggests that the FFN layers serve as key-value memories that store factual knowledge learned during pre-training.
+
+Modern Transformers often use different activation functions in the FFN. GELU (Gaussian Error Linear Unit) is used in BERT and GPT models. SwiGLU, a gated variant combining Swish activation with a Gated Linear Unit, is used in LLaMA and PaLM. The gated variants have been shown to improve performance without additional computational cost when the inner dimension is adjusted.
+
+The choice of FFN inner dimension affects the model's capacity. The standard ratio of 4x the model dimension is widely used, but some architectures like Chinchilla use different ratios. Mixture of Experts (MoE) architectures replace the dense FFN with a sparse set of expert FFNs, activating only a subset for each token.

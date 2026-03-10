@@ -1,0 +1,9 @@
+Diffusion Models
+
+Diffusion models are a class of generative models that learn to create data by gradually denoising a signal, reversing a process that progressively adds Gaussian noise until the data becomes pure noise. They have achieved state-of-the-art results in image generation, surpassing GANs in quality and diversity.
+
+The forward diffusion process adds small amounts of Gaussian noise to data over T timesteps, gradually transforming it into pure noise. The reverse process learns to denoise at each step, transforming noise back into data. The model is trained to predict the noise added at each timestep, using a U-Net or Transformer architecture.
+
+Stable Diffusion by Stability AI operates in a compressed latent space rather than pixel space, making it computationally efficient. A variational autoencoder first encodes images into a lower-dimensional latent representation. The diffusion process operates in this latent space, and the final latent is decoded back to pixel space.
+
+Text-to-image diffusion models like DALL-E 2, Midjourney, and Stable Diffusion use CLIP text embeddings to condition the generation process, enabling generation from text descriptions. Classifier-free guidance balances generation quality with prompt adherence. While not directly related to text-based RAG, diffusion models share key concepts with Transformers and demonstrate the power of iterative refinement — a principle that also applies to autonomous pipeline optimization.

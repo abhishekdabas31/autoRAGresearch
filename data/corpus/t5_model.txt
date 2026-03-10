@@ -1,0 +1,9 @@
+T5: Text-to-Text Transfer Transformer
+
+T5 (Text-to-Text Transfer Transformer), introduced by Raffel et al. at Google in 2019, is an encoder-decoder model that frames every NLP task as a text-to-text problem. Translation, summarization, classification, and question answering all use the same input-output format: the model receives text and produces text.
+
+For example, translation becomes "translate English to German: The house is wonderful." → "Das Haus ist wunderbar." Sentiment classification becomes "sst2 sentence: The movie was excellent." → "positive." This unified format allows a single model architecture and training procedure for all tasks.
+
+T5 was pre-trained on the C4 (Colossal Clean Crawled Corpus), a cleaned version of Common Crawl containing about 750GB of text. The pre-training objective is span corruption: random spans of input tokens are replaced with sentinel tokens, and the model is trained to generate the missing spans. T5 comes in multiple sizes: Small (60M), Base (220M), Large (770M), 3B, and 11B parameters.
+
+FLAN-T5 is an instruction-tuned version that significantly improves T5's zero-shot and few-shot capabilities. T5's encoder-decoder architecture makes it particularly effective for tasks that require both understanding the input (encoder) and generating a structured output (decoder), such as summarization, question answering with extractive answers, and data-to-text generation.

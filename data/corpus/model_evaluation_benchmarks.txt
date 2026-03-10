@@ -1,0 +1,9 @@
+Model Evaluation Benchmarks
+
+Benchmarks provide standardized evaluation of language model capabilities across diverse tasks. They are essential for comparing models, tracking progress, and identifying strengths and weaknesses.
+
+GLUE (General Language Understanding Evaluation) and SuperGLUE are collections of NLU tasks including sentiment analysis, textual entailment, and sentence similarity. BERT-level models saturated GLUE, leading to the harder SuperGLUE. Both benchmarks are solved by modern LLMs.
+
+MMLU (Massive Multitask Language Understanding) evaluates knowledge across 57 subjects from STEM to humanities. It tests the model's ability to recall factual knowledge and apply reasoning across diverse domains. GPT-4 achieves 86.4% on MMLU; human expert performance is around 89%.
+
+HumanEval evaluates code generation by testing whether model-generated Python functions pass unit tests. The pass@k metric measures the probability that at least one of k generated solutions is correct. MT-Bench and Chatbot Arena use human preference judgments to evaluate conversational ability. The MTEB (Massive Text Embedding Benchmark) evaluates embedding models across retrieval, classification, and clustering tasks. No single benchmark captures all aspects of model quality, and benchmark performance does not always correlate with real-world usefulness.

@@ -1,0 +1,9 @@
+Positional Encoding
+
+Since the Transformer architecture processes all tokens in parallel without any inherent notion of order, positional encodings are added to the input embeddings to provide information about the position of each token in the sequence. Without positional encoding, the Transformer would treat the input as a bag of tokens with no sequential structure.
+
+The original Transformer uses sinusoidal positional encodings. For each position pos and each dimension i, the encoding is: PE(pos, 2i) = sin(pos / 10000^(2i/d_model)) and PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model)). This scheme was chosen because it allows the model to learn to attend to relative positions, since PE(pos+k) can be expressed as a linear function of PE(pos) for any fixed offset k.
+
+Later work introduced learned positional encodings, where position embeddings are trained parameters rather than fixed functions. BERT and GPT use learned absolute position embeddings. More recent models use relative positional encodings such as RoPE (Rotary Position Embedding) used in LLaMA, and ALiBi (Attention with Linear Biases) which adds a linear bias to attention scores based on the distance between positions.
+
+RoPE encodes position by rotating the query and key vectors in pairs of dimensions, which naturally encodes relative position information in the dot product attention scores. This approach generalizes better to sequence lengths not seen during training.

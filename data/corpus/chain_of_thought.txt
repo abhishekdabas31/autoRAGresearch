@@ -1,0 +1,9 @@
+Chain-of-Thought Prompting
+
+Chain-of-thought (CoT) prompting is a technique where the model is encouraged to generate intermediate reasoning steps before producing a final answer. Introduced by Wei et al. (2022), CoT prompting significantly improves performance on arithmetic, commonsense, and symbolic reasoning tasks.
+
+In standard prompting, the model receives a question and generates an answer directly. In CoT prompting, the few-shot examples include step-by-step reasoning. For example, instead of "Q: Roger has 5 tennis balls. He buys 2 cans of 3 balls each. A: 11", CoT uses "Q: Roger has 5 tennis balls. He buys 2 cans of 3 balls each. A: He bought 2 * 3 = 6 balls. So he has 5 + 6 = 11 balls. The answer is 11."
+
+Zero-shot CoT, discovered by Kojima et al. (2022), shows that simply adding "Let's think step by step" to the prompt triggers chain-of-thought reasoning without any examples. This suggests that the reasoning capability is latent in large language models and can be elicited with minimal prompting.
+
+CoT reasoning is considered an emergent ability — it primarily benefits models above approximately 100 billion parameters. Smaller models tend to produce incoherent reasoning chains. Self-consistency, introduced by Wang et al. (2023), samples multiple reasoning paths and selects the most common answer, further improving CoT performance.

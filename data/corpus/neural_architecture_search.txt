@@ -1,0 +1,9 @@
+Neural Architecture Search
+
+Neural Architecture Search (NAS) automates the design of neural network architectures, replacing manual architecture engineering with algorithmic search. NAS methods explore a defined search space of possible architectures and use a search strategy to find architectures that maximize performance on a validation set.
+
+The search space defines what architectures are possible: which operations (convolution, attention, pooling), how they connect, and what hyperparameters they have. The search strategy can be random search, evolutionary algorithms, reinforcement learning (the controller generates architectures and receives accuracy as reward), or gradient-based methods (DARTS differentiates through the architecture choice).
+
+Early NAS methods required thousands of GPU hours to search. One-shot NAS methods like DARTS train a single super-network that contains all possible architectures as subgraphs, then search for the best subgraph. This reduces search cost from thousands to a few GPU hours.
+
+NAS has produced several notable architectures: EfficientNet (discovered by NAS on ImageNet) and NASNet (architecture for image classification). For Transformers, NAS has been applied to find optimal attention patterns, FFN dimensions, and layer configurations. AutoML pipelines extend NAS to jointly optimize architecture, hyperparameters, and training procedures.

@@ -1,0 +1,9 @@
+HyDE: Hypothetical Document Embedding
+
+Hypothetical Document Embedding (HyDE) is a retrieval technique introduced by Gao et al. (2022) that uses a language model to generate a hypothetical answer to the query, then uses the embedding of this hypothetical document as the retrieval query instead of the original query embedding.
+
+The intuition behind HyDE is that a hypothetical answer, even if inaccurate, will be more lexically and semantically similar to the actual relevant documents than the short query itself. This bridges the gap between the query space and the document space, improving retrieval recall especially for abstract or conceptual queries.
+
+The HyDE pipeline works as follows: given a user query, prompt the LLM to generate a hypothetical passage that would answer the query. Embed this generated passage using the same embedding model used for the document index. Use the hypothetical document embedding to retrieve actual documents from the index. Pass the retrieved real documents (not the hypothetical one) to the LLM for final answer generation.
+
+HyDE is most effective when queries are abstract or when there is a significant vocabulary mismatch between how users phrase questions and how information is stated in the corpus. However, it adds latency (one extra LLM call) and can hurt performance when the generated hypothetical document is misleading. HyDE works best when combined with other retrieval strategies like hybrid search.

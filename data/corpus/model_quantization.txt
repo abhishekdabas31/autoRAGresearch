@@ -1,0 +1,9 @@
+Model Quantization
+
+Quantization reduces the memory footprint and computational cost of neural networks by representing weights and activations with lower-precision data types. Standard Transformer models use 32-bit (FP32) or 16-bit (FP16/BF16) floating-point numbers. Quantization converts these to 8-bit integers (INT8) or even 4-bit (INT4) representations.
+
+Post-training quantization (PTQ) converts a pre-trained model to lower precision without retraining. GPTQ is a popular one-shot quantization method that minimizes the layer-wise reconstruction error when quantizing to 3-4 bits. AWQ (Activation-Aware Weight Quantization) identifies salient weights based on activation patterns and quantizes them with higher precision.
+
+Quantization-aware training (QAT) simulates low-precision arithmetic during training, allowing the model to adapt to quantization effects. QAT typically produces higher-quality quantized models than PTQ but requires access to training data and compute.
+
+The impact of quantization on model quality depends on the target precision. FP16/BF16 quantization is essentially lossless. INT8 quantization typically causes less than 1% degradation. 4-bit quantization can cause 1-5% quality loss on benchmarks but dramatically reduces memory requirements — a 7B parameter model drops from 14GB (FP16) to 3.5GB (4-bit), enabling it to run on consumer GPUs. The GGUF format, used by llama.cpp and Ollama, supports various quantization levels.

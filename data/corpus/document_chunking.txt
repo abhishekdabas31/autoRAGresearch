@@ -1,0 +1,11 @@
+Document Chunking Strategies for RAG
+
+Document chunking is the process of splitting documents into smaller segments for indexing and retrieval in RAG systems. The chunking strategy significantly affects both retrieval precision and the quality of generated answers.
+
+Fixed-size chunking splits text into segments of a constant number of characters or tokens, optionally with overlap between consecutive chunks. This is the simplest strategy and works well as a baseline. Typical chunk sizes range from 256 to 1024 tokens. Overlap (usually 10-20% of chunk size) prevents information loss at chunk boundaries.
+
+Sentence-level chunking splits text at sentence boundaries, grouping sentences until a maximum size is reached. This preserves natural semantic units and avoids splitting mid-sentence, which can confuse the embedding model and the generation model. Paragraph-level chunking is similar but uses paragraph boundaries.
+
+Semantic chunking uses an embedding model to detect topic shifts within a document. Adjacent sentences with similar embeddings are grouped together, and splits occur where the embedding similarity drops below a threshold. This produces chunks that are more semantically coherent than fixed-size chunks.
+
+Recursive chunking (used in LangChain) tries multiple separators in order of priority: first paragraph breaks, then sentence breaks, then word breaks, falling back to character-level splitting only if necessary. The choice of chunking strategy should be guided by the nature of the corpus and the types of queries expected.

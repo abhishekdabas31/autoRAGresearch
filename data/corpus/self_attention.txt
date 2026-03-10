@@ -1,0 +1,9 @@
+Self-Attention Mechanism
+
+Self-attention, also called intra-attention, is the core mechanism of the Transformer architecture. It allows each position in a sequence to attend to all other positions, computing a weighted representation where the weights reflect relevance. Unlike convolutional layers that have a fixed receptive field, self-attention has a global receptive field from the first layer.
+
+In self-attention, each input token is projected into three vectors: a query (Q), a key (K), and a value (V) using learned weight matrices. The attention score between any two positions is computed as the dot product of the query of one position with the key of another, scaled by the square root of the dimension. These scores are passed through a softmax function to obtain attention weights, which are then used to compute a weighted sum of the value vectors.
+
+Self-attention has O(n^2) complexity with respect to sequence length n, since every position attends to every other position. This quadratic scaling is the main computational bottleneck for processing very long sequences and has motivated research into efficient attention variants such as linear attention, sparse attention, and Flash Attention.
+
+The ability of self-attention to directly model long-range dependencies without the vanishing gradient problem of RNNs is considered the key advantage that made Transformers successful across NLP, computer vision, and other domains.

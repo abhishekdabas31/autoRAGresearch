@@ -1,0 +1,9 @@
+Tokenization in Language Models
+
+Tokenization is the process of converting raw text into a sequence of tokens that a language model can process. Modern LLMs use subword tokenization algorithms that split text into a vocabulary of common subword units, balancing between character-level and word-level representations.
+
+Byte-Pair Encoding (BPE), originally a data compression algorithm, was adapted for NLP by Sennrich et al. in 2016. BPE starts with a character-level vocabulary and iteratively merges the most frequent adjacent pairs of tokens until a desired vocabulary size is reached. GPT-2, GPT-3, and GPT-4 use BPE tokenization. GPT-2's tokenizer has a vocabulary of 50,257 tokens.
+
+WordPiece is a similar subword algorithm used by BERT. It differs from BPE in that it selects merges based on the likelihood of the training data rather than raw frequency. WordPiece starts with characters and greedily adds subwords that maximize the likelihood of the corpus. BERT's vocabulary contains 30,522 WordPiece tokens.
+
+SentencePiece by Google treats the input as a raw stream of Unicode characters and learns a subword vocabulary without requiring pre-tokenization into words. This makes it language-agnostic and particularly useful for multilingual models. T5 and LLaMA use SentencePiece tokenization. The choice of tokenizer and vocabulary size significantly affects model efficiency: a larger vocabulary reduces sequence length but increases embedding table size.

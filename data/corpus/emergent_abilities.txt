@@ -1,0 +1,9 @@
+Emergent Abilities of Large Language Models
+
+Emergent abilities are capabilities that appear in large language models but are absent in smaller models. They represent qualitative changes in model behavior that arise from quantitative scaling. The term was popularized by Wei et al. (2022) in a survey of behaviors that emerge at specific scale thresholds.
+
+Examples of emergent abilities include: multi-step arithmetic (emerging around 100B parameters), chain-of-thought reasoning (enabling complex multi-step problem solving), code generation, analogical reasoning, and the ability to follow complex instructions. These abilities appear suddenly rather than improving gradually with scale.
+
+Few-shot learning is considered an emergent ability. GPT-3 (175B parameters) demonstrated that providing a few examples in the prompt enables the model to perform new tasks without any parameter updates. Smaller models in the GPT-3 family showed little to no few-shot capability, while GPT-3 showed dramatic improvement.
+
+Some researchers have questioned whether emergent abilities are truly sudden or whether they appear sudden due to the choice of evaluation metrics. Schaeffer et al. (2023) argued that with appropriate metrics, many seemingly emergent abilities actually improve smoothly with scale. Regardless, the practical impact is clear: sufficiently large models can perform tasks that smaller models cannot, and predicting which abilities will emerge at which scale remains an open research problem.

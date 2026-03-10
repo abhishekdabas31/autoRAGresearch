@@ -1,0 +1,9 @@
+Layer Normalization
+
+Layer normalization is a technique used in Transformers to stabilize training and improve convergence. Unlike batch normalization, which normalizes across the batch dimension, layer normalization normalizes across the feature dimension for each individual example. This makes it independent of batch size and well-suited for sequence models where batch sizes may vary.
+
+For a given input vector x, layer normalization computes: LayerNorm(x) = gamma * (x - mean(x)) / sqrt(var(x) + epsilon) + beta, where gamma and beta are learned scale and shift parameters, and epsilon is a small constant for numerical stability.
+
+In the original Transformer, layer normalization is applied after each sub-layer (post-norm): output = LayerNorm(x + Sublayer(x)). However, subsequent research found that pre-norm placement, where normalization is applied before the sub-layer, leads to more stable training especially for deep models: output = x + Sublayer(LayerNorm(x)). GPT-2 and most modern LLMs use pre-norm.
+
+RMSNorm (Root Mean Square Layer Normalization) is a simplified variant used in LLaMA and other recent models. It removes the mean centering step: RMSNorm(x) = gamma * x / sqrt(mean(x^2) + epsilon). This is computationally cheaper while performing comparably to standard layer normalization.

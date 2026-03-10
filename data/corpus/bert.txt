@@ -1,0 +1,9 @@
+BERT: Bidirectional Encoder Representations from Transformers
+
+BERT, introduced by Google in 2018, is a pre-trained language model based on the Transformer encoder architecture. BERT's key innovation is bidirectional pre-training: unlike previous models that read text left-to-right or right-to-left, BERT reads the entire sequence simultaneously, allowing each token to attend to both left and right context.
+
+BERT is pre-trained with two objectives. Masked Language Modeling (MLM) randomly masks 15% of input tokens and trains the model to predict them from context. Next Sentence Prediction (NSP) trains the model to predict whether two sentences appear consecutively in the original text. Later research showed that NSP provides minimal benefit and can be removed.
+
+BERT-base has 12 layers, 768 hidden dimensions, 12 attention heads, and 110 million parameters. BERT-large scales to 24 layers, 1024 hidden dimensions, 16 attention heads, and 340 million parameters. Both models are pre-trained on the BooksCorpus (800M words) and English Wikipedia (2,500M words).
+
+BERT established the pre-train-then-fine-tune paradigm in NLP. After pre-training, BERT is fine-tuned on downstream tasks by adding a task-specific output layer. It achieved state-of-the-art results on 11 NLP benchmarks including GLUE, SQuAD question answering, and named entity recognition. BERT's success demonstrated that large-scale unsupervised pre-training captures rich linguistic knowledge.

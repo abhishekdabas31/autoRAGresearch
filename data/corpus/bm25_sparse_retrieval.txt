@@ -1,0 +1,9 @@
+BM25 and Sparse Retrieval
+
+BM25 (Best Matching 25) is a ranking function used in information retrieval that scores documents based on term frequency and document length. It is the most widely used sparse retrieval method and remains competitive with dense retrieval for many tasks, particularly when queries contain rare or specific terms.
+
+BM25 computes a relevance score based on three components: term frequency (TF) with diminishing returns, inverse document frequency (IDF) to weight rare terms higher, and document length normalization to avoid biasing toward longer documents. The formula is parameterized by k1 (controls TF saturation, typically 1.2-2.0) and b (controls length normalization, typically 0.75).
+
+Unlike dense retrieval which matches based on semantic similarity in embedding space, sparse retrieval matches based on exact lexical overlap. This makes BM25 particularly effective for queries with rare technical terms, proper nouns, or specific codes that dense models might not represent well in their embedding space.
+
+Hybrid retrieval combines dense and sparse methods, typically using a weighted sum of normalized scores. Research consistently shows that hybrid retrieval outperforms either method alone. The weighting parameter alpha controls the balance: higher alpha favors dense retrieval (better for semantic matching) while lower alpha favors sparse retrieval (better for keyword matching). Reciprocal Rank Fusion is an alternative combination method that doesn't require score normalization.

@@ -1,0 +1,9 @@
+Constitutional AI
+
+Constitutional AI (CAI) is an alignment technique developed by Anthropic that trains AI systems to be helpful, harmless, and honest using a set of principles (a "constitution") rather than relying entirely on human feedback labels. CAI aims to reduce the need for human labelers while producing well-aligned models.
+
+The CAI process has two phases. In the first phase (supervised), the model generates responses, then critiques and revises its own responses according to constitutional principles. For example, a principle might be "choose the response that is least likely to encourage illegal activity." The model generates pairs of (original, revised) responses, and the revised responses are used as training data.
+
+In the second phase (reinforcement learning), the model generates response pairs and uses the constitution to determine which response is preferred. This preference data trains a reward model, which is then used for RLHF. The key innovation is that both the critique and the preference labeling are done by the AI itself, guided by the constitution.
+
+CAI produces models that are more transparent in their reasoning about safety. Instead of learning implicit rules from human labels, the model explicitly references principles when deciding how to respond. This makes the alignment process more interpretable and auditable. The constitution can be updated to adjust behavior without retraining from scratch.

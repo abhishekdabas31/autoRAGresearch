@@ -1,0 +1,9 @@
+Ollama and Local LLM Inference
+
+Ollama is an open-source tool for running large language models locally on consumer hardware. It provides a simple command-line interface and HTTP API for downloading, managing, and running models. Ollama supports a wide range of models including LLaMA, Mistral, Gemma, Phi, and many others in the GGUF quantized format.
+
+Local inference offers several advantages over cloud APIs: complete data privacy (no data leaves your machine), zero per-token cost, no rate limits, and the ability to work offline. The trade-off is that local models are generally smaller and less capable than cloud-hosted models like GPT-4 or Claude.
+
+Ollama automatically handles model quantization and memory management. A 7B parameter model in 4-bit quantization requires approximately 4GB of RAM, running comfortably on modern laptops. Larger models (13B, 34B, 70B) require proportionally more memory and benefit from GPU acceleration. Ollama supports GPU offloading on both NVIDIA and Apple Silicon hardware.
+
+For RAG systems, local inference means the entire pipeline — embedding, retrieval, and generation — can run without any cloud dependency. Models like llama3.2:3b provide reasonable quality for QA tasks while running fast on CPU. For embeddings, Ollama can also serve embedding models, though sentence-transformers running locally is typically faster for batch embedding operations.

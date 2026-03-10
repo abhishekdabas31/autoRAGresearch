@@ -1,0 +1,11 @@
+Pre-training Objectives for Language Models
+
+Pre-training objectives define the self-supervised task a language model learns from unlabeled text. The choice of objective determines what knowledge and capabilities the model acquires and how it can be used downstream.
+
+Causal language modeling (CLM) trains the model to predict the next token given all previous tokens. This autoregressive objective is used by GPT models. CLM naturally supports text generation and in-context learning. The loss is computed only on the next token prediction: L = -sum(log P(x_t | x_<t)).
+
+Masked language modeling (MLM) randomly masks tokens and trains the model to predict them from bidirectional context. Used by BERT, MLM produces representations that capture both left and right context, making them strong for understanding tasks like classification and extraction. However, MLM models are not natural text generators.
+
+Span corruption, used by T5, masks contiguous spans of tokens and trains the model to generate the missing spans. This objective unifies understanding and generation in an encoder-decoder framework. Prefix language modeling, used by UniLM, combines causal and bidirectional objectives.
+
+Denoising objectives like those in BART add various types of noise (token masking, deletion, permutation, rotation) and train the model to reconstruct the original text. Different corruptions encourage different capabilities. The trend in modern LLMs is toward causal language modeling with massive scale, as it provides the most natural interface for instruction following and generation.

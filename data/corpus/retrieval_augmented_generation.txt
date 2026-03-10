@@ -1,0 +1,9 @@
+Retrieval-Augmented Generation (RAG)
+
+Retrieval-Augmented Generation (RAG) is a technique that enhances language model outputs by first retrieving relevant documents from an external knowledge base and then conditioning the generation on both the query and the retrieved context. RAG was introduced by Lewis et al. at Facebook AI Research in 2020.
+
+The RAG pipeline consists of three stages: indexing, retrieval, and generation. During indexing, documents are chunked, embedded using a dense encoder, and stored in a vector database. At inference time, the query is embedded and used to retrieve the top-k most similar document chunks. These chunks are prepended to the prompt as context for the language model to generate a grounded answer.
+
+RAG addresses several limitations of standalone LLMs. It reduces hallucination by grounding responses in retrieved evidence. It allows the model to access up-to-date information beyond its training cutoff. It makes the model's knowledge source transparent and verifiable. And it enables domain-specific QA without fine-tuning the model.
+
+Key hyperparameters in RAG include chunk size, overlap between chunks, the number of documents retrieved (top-k), the embedding model, and the generation prompt. Advanced RAG techniques include hybrid retrieval combining dense and sparse methods, cross-encoder reranking of retrieved documents, query expansion, and Hypothetical Document Embedding (HyDE) which generates a hypothetical answer to use as the retrieval query.

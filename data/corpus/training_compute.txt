@@ -1,0 +1,9 @@
+Training Compute and Infrastructure for LLMs
+
+Training large language models requires massive computational resources. GPT-3 (175B parameters) required approximately 3.14 × 10^23 FLOPs, estimated at 1,024 A100 GPUs for about 34 days. GPT-4's training is estimated to have used over 10,000 GPUs for several months.
+
+Data parallelism distributes training across GPUs by replicating the model on each GPU and splitting the data batch. ZeRO (Zero Redundancy Optimizer) by DeepSpeed reduces memory by partitioning optimizer states, gradients, and parameters across GPUs rather than replicating them.
+
+Model parallelism splits the model itself across GPUs. Tensor parallelism splits individual layers across GPUs. Pipeline parallelism assigns different layers to different GPUs and overlaps computation across micro-batches. Megatron-LM by NVIDIA combines all three parallelism strategies for efficient training at scale.
+
+Mixed-precision training uses FP16 or BF16 for most computations while maintaining a FP32 master copy of weights for updates. BF16 (Brain Float16) has the same exponent range as FP32, avoiding overflow issues that sometimes occur with FP16. Modern GPU architectures (A100, H100) include specialized tensor cores for fast FP16/BF16 matrix multiplication, achieving 2-4x speedup over FP32.

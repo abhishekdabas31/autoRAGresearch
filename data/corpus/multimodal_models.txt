@@ -1,0 +1,9 @@
+Multimodal Models
+
+Multimodal models process and generate content across multiple modalities — text, images, audio, and video. The Transformer architecture has proven to be a flexible foundation for multimodal learning, as sequences of tokens from different modalities can be concatenated and processed jointly.
+
+CLIP (Contrastive Language-Image Pre-training) by OpenAI (2021) learns a shared embedding space for images and text through contrastive learning. Trained on 400 million image-text pairs, CLIP can perform zero-shot image classification by computing similarity between image embeddings and text embeddings of class descriptions. CLIP's image encoder has become a standard component in many multimodal systems.
+
+LLaVA (Large Language and Vision Assistant) connects a pre-trained vision encoder (CLIP ViT) with a large language model through a simple projection layer. The model is trained on visual instruction data where GPT-4 generates conversations about images. This approach achieves strong visual question answering performance with minimal architectural changes.
+
+GPT-4V and Gemini represent the frontier of multimodal models, natively processing interleaved image and text inputs. These models can describe images, answer questions about visual content, read text from images, and reason about spatial relationships. The trend is toward unified models that handle all modalities within a single architecture and training framework.

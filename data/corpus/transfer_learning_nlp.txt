@@ -1,0 +1,9 @@
+Transfer Learning in NLP
+
+Transfer learning in NLP refers to the practice of pre-training a model on a large, general-purpose text corpus and then fine-tuning it on a specific downstream task. This approach leverages the linguistic knowledge captured during pre-training and dramatically reduces the amount of task-specific labeled data needed.
+
+The pre-train-then-fine-tune paradigm was popularized by ELMo (2018), which used bidirectional LSTMs, and then revolutionized by BERT (2018) and GPT (2018) using Transformers. The key insight is that language models trained on massive text corpora develop rich internal representations of syntax, semantics, and even world knowledge that transfer well to diverse tasks.
+
+Fine-tuning typically involves adding a task-specific head (such as a classification layer) on top of the pre-trained model and training the entire model end-to-end on labeled data for the target task. Learning rates for fine-tuning are typically much smaller than for pre-training (e.g., 2e-5 vs 1e-4) to avoid catastrophically forgetting pre-trained knowledge.
+
+Parameter-efficient fine-tuning methods like LoRA (Low-Rank Adaptation), adapters, and prefix tuning modify only a small number of parameters while keeping the base model frozen. LoRA adds trainable low-rank matrices to attention layers, typically training less than 1% of the original parameters while achieving comparable performance to full fine-tuning.

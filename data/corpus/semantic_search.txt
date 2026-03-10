@@ -1,0 +1,9 @@
+Semantic Search
+
+Semantic search retrieves documents based on meaning rather than keyword matching. Unlike traditional lexical search (BM25, TF-IDF) that matches exact terms, semantic search uses dense vector representations to find conceptually related content even when different words are used.
+
+The semantic search pipeline consists of: encoding documents into dense vectors using an embedding model, storing vectors in an index (like FAISS), encoding the query into a vector using the same model, and retrieving the nearest vectors by similarity. The quality depends heavily on the embedding model's ability to capture semantic relationships.
+
+Bi-encoder models (used in semantic search) independently encode queries and documents, enabling pre-computation of document embeddings and fast retrieval. Cross-encoder models jointly process query-document pairs for more accurate scoring but cannot pre-compute document representations. The common pattern is bi-encoder for initial retrieval followed by cross-encoder for reranking.
+
+Semantic search excels when users express needs differently from how information is stored: searching for "how to fix a broken pipe" retrieves documents about "plumbing repair methods." It struggles with exact-match queries, rare terms, and highly specific technical vocabulary. This complementarity with lexical search is why hybrid retrieval (combining both approaches) consistently outperforms either method alone.

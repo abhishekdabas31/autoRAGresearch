@@ -1,0 +1,9 @@
+Multi-Head Attention
+
+Multi-head attention is an extension of the basic attention mechanism that allows the model to jointly attend to information from different representation subspaces at different positions. Instead of computing a single attention function, multi-head attention runs multiple attention operations in parallel, each with its own learned projection matrices.
+
+Formally, given h attention heads, the input is projected h times with different learned linear projections for queries, keys, and values. Each head operates on a lower-dimensional subspace (d_model / h dimensions). The outputs of all heads are concatenated and projected through a final linear layer: MultiHead(Q, K, V) = Concat(head_1, ..., head_h)W^O.
+
+In the original Transformer, 8 attention heads were used with d_model = 512, giving each head a dimension of 64. Different heads learn to attend to different types of relationships: some heads might focus on syntactic dependencies, others on semantic similarity, and others on positional proximity. This diversity of attention patterns is crucial for the model's representational power.
+
+Multi-head attention is used in three ways in the Transformer: encoder self-attention (each encoder position attends to all encoder positions), decoder self-attention (each decoder position attends to previous decoder positions), and encoder-decoder cross-attention (each decoder position attends to all encoder positions).

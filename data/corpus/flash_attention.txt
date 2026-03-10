@@ -1,0 +1,9 @@
+Flash Attention
+
+Flash Attention, introduced by Dao et al. (2022), is an IO-aware exact attention algorithm that significantly speeds up Transformer training and inference. Standard attention materializes the full N x N attention matrix in GPU high-bandwidth memory (HBM), which is both memory-intensive (O(N^2)) and slow due to memory bandwidth limitations.
+
+Flash Attention tiles the attention computation into blocks that fit in SRAM (the fast on-chip memory), avoiding the need to materialize the full attention matrix in HBM. It fuses the attention operations (matrix multiply, softmax, masking, dropout) into a single GPU kernel. This reduces HBM reads/writes by up to 9x, resulting in 2-4x wall-clock speedup for attention operations.
+
+Flash Attention 2 (2023) further improves performance by better work partitioning between GPU thread blocks and warps. It achieves close to the theoretical maximum FLOPs utilization on modern GPUs (up to 73% on A100). Flash Attention 2 is used by default in most modern LLM training frameworks.
+
+The practical impact is significant. Flash Attention enables training with longer context lengths without running out of memory. Models like LLaMA 2 (4K context), Mistral (8K context with sliding window), and GPT-4 (128K context) all benefit from Flash Attention variants. The algorithm is mathematically equivalent to standard attention — it produces identical outputs while being faster and more memory-efficient.

@@ -1,0 +1,9 @@
+Few-Shot and Zero-Shot Learning
+
+Few-shot learning enables models to perform tasks with only a handful of examples. In the context of large language models, few-shot learning is achieved through in-context learning: examples are provided in the prompt, and the model infers the task pattern without parameter updates.
+
+Zero-shot learning provides no examples at all — only a task description. The model relies entirely on knowledge from pre-training to understand and perform the task. GPT-3 showed that zero-shot performance improves with model scale, with the largest models performing competitively with fine-tuned smaller models on many tasks.
+
+Few-shot learning in LLMs depends on several factors: the number and quality of examples, their ordering in the prompt, their similarity to the test input, and the label distribution across examples. Research shows that even random or misleading labels in few-shot examples can sometimes maintain performance, suggesting the model uses the format more than the specific labels.
+
+Meta-learning approaches train models to be good few-shot learners. MAML (Model-Agnostic Meta-Learning) optimizes initial parameters to enable fast adaptation. Prototypical networks learn to classify by computing distances to class prototypes in embedding space. While LLM in-context learning has largely supplanted these methods for NLP tasks, meta-learning principles inform how instruction tuning datasets are designed.

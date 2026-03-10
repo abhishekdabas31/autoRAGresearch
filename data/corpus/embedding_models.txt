@@ -1,0 +1,9 @@
+Embedding Models for NLP
+
+Embedding models convert text into dense vector representations that capture semantic meaning, enabling similarity-based retrieval and comparison. The quality of embeddings directly determines the quality of retrieval in RAG systems.
+
+Early word embeddings like Word2Vec (2013) and GloVe (2014) produced static embeddings where each word has a single vector regardless of context. BERT introduced contextualized embeddings where the same word gets different vectors depending on surrounding context.
+
+Sentence-transformers, based on Siamese BERT networks, are specifically trained for producing high-quality sentence and paragraph embeddings. The training uses contrastive learning objectives that pull semantically similar texts closer in embedding space. Popular models include all-MiniLM-L6-v2 (fast, good quality), nomic-embed-text-v1.5 (strong open-source embedding model), and BGE (BAAI General Embedding) models.
+
+The MTEB (Massive Text Embedding Benchmark) evaluates embedding models across diverse tasks including retrieval, classification, clustering, and semantic similarity. Embedding dimension (typically 384-1536) affects the trade-off between representational capacity and computational cost. Matryoshka representation learning allows a single model to produce embeddings that work well at multiple dimensions, enabling flexible deployment.

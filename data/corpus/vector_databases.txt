@@ -1,0 +1,9 @@
+Vector Databases and Similarity Search
+
+Vector databases are specialized storage systems designed for efficient similarity search over high-dimensional embedding vectors. They are a critical component of RAG systems, enabling fast nearest-neighbor retrieval from potentially millions of document embeddings.
+
+FAISS (Facebook AI Similarity Search) is an open-source library for efficient similarity search. It supports multiple index types: Flat indices perform exact brute-force search, IVF (Inverted File) indices partition the vector space into clusters for approximate search, and HNSW (Hierarchical Navigable Small World) indices build a graph structure for fast approximate nearest neighbor lookup. FAISS supports both CPU and GPU computation.
+
+The choice of similarity metric matters. Cosine similarity measures the angle between vectors and is most common for normalized embeddings. Euclidean (L2) distance measures the straight-line distance and is sensitive to vector magnitude. Inner product (dot product) combines magnitude and direction and is used when vector norms carry semantic meaning.
+
+Other vector database solutions include Pinecone (managed cloud service), Weaviate (open-source with hybrid search), Chroma (lightweight, optimized for RAG), and Milvus (distributed, scalable). The choice depends on scale, latency requirements, and whether hybrid search (combining dense vectors with sparse keyword matching) is needed.

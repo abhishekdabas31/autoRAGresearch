@@ -1,0 +1,9 @@
+Fine-Tuning Techniques for Language Models
+
+Fine-tuning adapts a pre-trained language model to a specific task or domain by continuing training on task-specific data. The approach to fine-tuning has evolved significantly as models have grown larger, with different strategies offering trade-offs between performance, cost, and simplicity.
+
+Full fine-tuning updates all model parameters on the downstream task. This is most effective when sufficient task-specific data is available but requires storing a separate copy of all parameters for each task. For a 7B parameter model, this means 14GB per task in FP16.
+
+Parameter-efficient fine-tuning (PEFT) methods update only a small fraction of parameters. LoRA adds low-rank matrices to attention layers. Adapters insert small trainable modules between existing layers. Prefix tuning prepends trainable vectors to the attention keys and values. P-tuning learns continuous prompt embeddings. These methods typically achieve 90-99% of full fine-tuning performance while training less than 1% of parameters.
+
+Instruction tuning is a form of fine-tuning on diverse (instruction, response) pairs that improves the model's ability to follow instructions generally. RLHF and DPO further align the model with human preferences. The typical pipeline for creating a production chat model is: pre-train on large corpus, supervised fine-tune on high-quality instruction data, and align with preference optimization. Each stage uses different data, objectives, and hyperparameters.
