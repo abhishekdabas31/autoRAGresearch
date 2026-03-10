@@ -1,11 +1,11 @@
-# AutoRAG 🔬
+# autoRAGresearch 🔬
 
 > Autonomous RAG pipeline optimizer. The agent iterates. You sleep.
 > Inspired by Andrej Karpathy's [autoresearch](https://github.com/karpathy/autoresearch).
 
 ## The Idea
 
-AutoRAG gives an AI agent a real RAG pipeline and lets it experiment autonomously overnight. The agent reads the current `rag_pipeline.py`, forms a hypothesis for improvement, modifies it (chunk strategy, embedding model, reranker, prompt, top-k, etc.), runs a fixed-time evaluation against a static query set, checks if the score improved, commits the change if it did, reverts if not, and loops.
+autoRAGresearch gives an AI agent a real RAG pipeline and lets it experiment autonomously overnight. The agent reads the current `rag_pipeline.py`, forms a hypothesis for improvement, modifies it (chunk strategy, embedding model, reranker, prompt, top-k, etc.), runs a fixed-time evaluation against a static query set, checks if the score improved, commits the change if it did, reverts if not, and loops.
 
 The human never touches the Python. They only write `program.md` — a Markdown file that gives the agent research direction.
 
@@ -21,8 +21,8 @@ The output is a **git history of autonomous improvements**, a live leaderboard, 
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/yourusername/autorag
-cd autorag
+git clone https://github.com/abhishekdabas31/autoRAGresearch.git
+cd autoRAGresearch
 pip install -r requirements.txt
 
 # 2. Generate the default corpus and eval set
@@ -37,7 +37,6 @@ cp .env.example .env
 # Edit .env with your key
 
 # 5. Initialize the git branch for experiments
-git init && git add -A && git commit -m "initial commit"
 git checkout -b autorag-experiments
 
 # 6. Run the baseline eval to see your starting score
@@ -74,7 +73,7 @@ LOOP (runs indefinitely until Ctrl+C):
 ## Repository Structure
 
 ```
-autorag/
+autoRAGresearch/
 ├── corpus_prep.py       # FIXED — loads docs, builds base index, model factories
 ├── rag_pipeline.py      # EDITABLE — agent's canvas, full RAG logic
 ├── program.md           # HUMAN-WRITTEN — research direction and constraints
@@ -94,7 +93,7 @@ autorag/
 ## What Makes This Different From Optuna
 
 - **Optuna** searches a predefined parameter space you specify in advance.
-- **AutoRAG** lets the agent *define the search space dynamically* — it can invent new chunking strategies, rewrite retrieval logic, change prompt structure, add techniques from its training knowledge.
+- **autoRAGresearch** lets the agent *define the search space dynamically* — it can invent new chunking strategies, rewrite retrieval logic, change prompt structure, add techniques from its training knowledge.
 - The agent can propose changes no parameter grid would have included.
 - Over hundreds of iterations, it discovers non-obvious interaction effects.
 - The git history is human-readable — you see *why* each change worked.

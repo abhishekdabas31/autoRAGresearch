@@ -1,4 +1,4 @@
-# AutoRAG Research Program
+# autoRAGresearch — Research Program
 
 ## Objective
 Maximize the composite RAGAS score on the eval set.

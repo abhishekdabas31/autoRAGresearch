@@ -2,7 +2,7 @@
 setup_data.py — One-time data generation
 
 Creates the default corpus (text files in data/corpus/) and evaluation set
-(data/eval_set.json). Run once before using AutoRAG.
+(data/eval_set.json). Run once before using autoRAGresearch.
 
 Usage:
     python setup_data.py
@@ -809,7 +809,7 @@ EVAL_SET = [
 
 
 def main():
-    print("Setting up AutoRAG default data...")
+    print("Setting up autoRAGresearch default data...")
 
     # Create corpus files
     CORPUS_DIR.mkdir(parents=True, exist_ok=True)

@@ -179,7 +179,7 @@ def update_readme(experiments: list[dict]):
 
     leaderboard = "\n".join(rows + [baseline_row])
 
-    readme = f"""# AutoRAG 🔬
+    readme = f"""# autoRAGresearch 🔬
 
 > Autonomous RAG pipeline optimizer. The agent iterates. You sleep.
 > Inspired by Andrej Karpathy's [autoresearch](https://github.com/karpathy/autoresearch).
@@ -203,7 +203,7 @@ python loop.py          # start optimizing
 
 ## How It Works
 
-AutoRAG gives an AI agent a real RAG pipeline (`rag_pipeline.py`) and lets it
+autoRAGresearch gives an AI agent a real RAG pipeline (`rag_pipeline.py`) and lets it
 experiment autonomously. The agent forms a hypothesis, modifies the pipeline,
 evaluates it against a fixed query set, keeps improvements, reverts failures,
 and loops. The human only writes `program.md` to steer the research direction.
@@ -234,7 +234,7 @@ def run_loop(args):
     model = args.model
 
     # Baseline eval
-    print("AutoRAG initialized.")
+    print("autoRAGresearch initialized.")
     print("Running baseline evaluation...")
     baseline = run_evaluation()
     if baseline["timed_out"]:
@@ -347,7 +347,7 @@ def run_loop(args):
 
             if not args.dry_run:
                 git("add rag_pipeline.py")
-                msg = f"[autorag] {delta:+.4f} | {change_desc} | score: {new_score:.4f}"
+                msg = f"[autoRAGresearch] {delta:+.4f} | {change_desc} | score: {new_score:.4f}"
                 git(f'commit -m "{msg}"')
                 save_best_config(exp_record, new_code)
         else:
@@ -373,7 +373,7 @@ def run_loop(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="AutoRAG — Autonomous RAG Pipeline Optimizer")
+    parser = argparse.ArgumentParser(description="autoRAGresearch — Autonomous RAG Pipeline Optimizer")
     parser.add_argument("--experiments", type=int, default=None, help="Max experiments to run (default: unlimited)")
     parser.add_argument("--model", type=str, default="claude-sonnet-4-20250514", help="Anthropic model to use")
     parser.add_argument("--dry-run", action="store_true", help="Propose changes without writing or committing")
