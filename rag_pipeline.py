@@ -11,8 +11,8 @@ from corpus_prep import load_documents, get_embedding_model
 
 # Chunking
 CHUNK_STRATEGY = "fixed"  # options: "fixed", "sentence", "paragraph", "semantic", "recursive"
-CHUNK_SIZE = 512  # tokens/chars depending on strategy
-CHUNK_OVERLAP = 50  # overlap between consecutive chunks
+CHUNK_SIZE = 250  # tokens/chars depending on strategy
+CHUNK_OVERLAP = 0  # overlap between consecutive chunks
 
 # Embedding
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
