@@ -19,10 +19,10 @@ EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 EMBEDDING_BATCH_SIZE = 32
 
 # Retrieval
-RETRIEVAL_TOP_K = 3
+RETRIEVAL_TOP_K = 10
 USE_HYBRID_RETRIEVAL = False  # combine dense + BM25 sparse retrieval
 HYBRID_ALPHA = 0.5  # weight for dense vs sparse (0=pure sparse, 1=pure dense)
-USE_RERANKER = False  # apply cross-encoder reranking post-retrieval
+USE_RERANKER = True  # apply cross-encoder reranking post-retrieval
 RERANKER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 RERANKER_TOP_K = 3
 
