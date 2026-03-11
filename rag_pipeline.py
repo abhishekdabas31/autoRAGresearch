@@ -3,7 +3,7 @@
 # The agent reads this file, hypothesizes improvements, and rewrites it.
 
 import numpy as np
-from corpus_prep import load_documents, get_embedding_model, get_llm
+from corpus_prep import load_documents, get_embedding_model
 
 # ============================================================
 # SECTION 1: CONFIGURATION — All tunable parameters live here
@@ -15,7 +15,7 @@ CHUNK_SIZE = 512  # tokens/chars depending on strategy
 CHUNK_OVERLAP = 50  # overlap between consecutive chunks
 
 # Embedding
-EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 EMBEDDING_BATCH_SIZE = 32
 
 # Retrieval
@@ -27,12 +27,14 @@ RERANKER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 RERANKER_TOP_K = 3
 
 # Generation
-LLM_MODEL = "llama3.2:3b"
+LLM_MODEL = "google/flan-t5-small"
 GENERATION_TEMPERATURE = 0.1
 MAX_NEW_TOKENS = 256
 SYSTEM_PROMPT = """You are a precise question-answering assistant.
 Answer the question using ONLY the provided context.
 If the answer cannot be found in the context, say 'I don't know.'"""
+
+_llm_pipeline = None
 
 # Query Processing
 USE_QUERY_EXPANSION = False
@@ -129,7 +131,7 @@ def build_index(chunks: list[dict]) -> dict:
     return index_data
 
 
-def retrieve(query: str, index: dict, top_k: int | None = None) -> list[dict]:
+def retrieve(query: str, index: dict, top_k=None) -> list[dict]:
     """Retrieve relevant chunks. Supports dense-only or hybrid (dense + BM25)."""
     if top_k is None:
         top_k = RETRIEVAL_TOP_K
@@ -186,17 +188,18 @@ def assemble_context(chunks: list[dict]) -> str:
 
 
 def generate_answer(query: str, context: str) -> str:
-    """Call the local LLM via Ollama to generate an answer from context."""
-    client, model_name = get_llm(LLM_MODEL)
-    response = client.chat(
-        model=model_name,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {query}\n\nAnswer:"},
-        ],
-        options={"temperature": GENERATION_TEMPERATURE, "num_predict": MAX_NEW_TOKENS},
-    )
-    return response["message"]["content"]
+    """Generate answer using a local HuggingFace model (no external API)."""
+    global _llm_pipeline
+    if _llm_pipeline is None:
+        from transformers import pipeline as hf_pipeline
+        _llm_pipeline = hf_pipeline(
+            "text2text-generation",
+            model=LLM_MODEL,
+            max_new_tokens=MAX_NEW_TOKENS,
+        )
+    prompt = f"{SYSTEM_PROMPT}\n\nContext:\n{context}\n\nQuestion: {query}\n\nAnswer:"
+    result = _llm_pipeline(prompt, max_new_tokens=MAX_NEW_TOKENS)
+    return result[0]["generated_text"]
 
 
 def run_query(query: str, index: dict) -> dict:
@@ -205,4 +208,9 @@ def run_query(query: str, index: dict) -> dict:
     chunks = rerank(query, chunks)
     context = assemble_context(chunks)
     answer = generate_answer(query, context)
-    return {"answer": answer, "contexts": [c["text"] for c in chunks], "query": query}
+    return {
+        "answer": answer,
+        "contexts": [c["text"] for c in chunks],
+        "source_ids": [c["source"] for c in chunks],
+        "query": query,
+    }

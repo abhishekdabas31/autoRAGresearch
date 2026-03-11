@@ -9,6 +9,9 @@ Metric weights (configurable):
   answer_relevance  0.35  — Does the answer address the query correctly?
   context_precision 0.20  — Are the retrieved chunks actually relevant?
   context_recall    0.10  — Were the relevant chunks actually retrieved?
+
+When relevant_doc_ids are available (SciFact/BeIR datasets), context metrics
+use precise ID-based matching instead of token overlap.
 """
 
 import importlib
@@ -46,10 +49,10 @@ def _token_f1(pred: set[str], gold: set[str]) -> float:
 
 
 def _compute_metrics(results: list[dict]) -> dict:
-    """Compute RAGAS-inspired metrics using token overlap heuristics.
+    """Compute evaluation metrics.
 
-    These are fast, deterministic, and require no LLM evaluator.
-    For LLM-judge evaluation, integrate the ragas library with Ollama.
+    Uses ID-based matching for context_precision/recall when relevant_doc_ids
+    are present (SciFact). Falls back to token overlap otherwise.
     """
     faith, relevance, ctx_prec, ctx_rec = [], [], [], []
 
@@ -57,7 +60,6 @@ def _compute_metrics(results: list[dict]) -> dict:
         ans_tok = _tokenize(r["answer"])
         ctx_tok = _tokenize(" ".join(r["contexts"]))
         gt_ans_tok = _tokenize(r["ground_truth_answer"])
-        gt_ctx_tok = _tokenize(" ".join(r["ground_truth_contexts"]))
 
         # Faithfulness: fraction of answer tokens grounded in context
         faith.append(len(ans_tok & ctx_tok) / len(ans_tok) if ans_tok else 0.0)
@@ -65,22 +67,30 @@ def _compute_metrics(results: list[dict]) -> dict:
         # Answer relevance: F1 between predicted and gold answer
         relevance.append(_token_f1(ans_tok, gt_ans_tok))
 
-        # Context precision: avg relevance of each retrieved chunk
-        if r["contexts"]:
-            chunk_scores = []
-            for ctx in r["contexts"]:
-                ct = _tokenize(ctx)
-                chunk_scores.append(len(ct & gt_ctx_tok) / len(ct) if ct else 0.0)
-            ctx_prec.append(sum(chunk_scores) / len(chunk_scores))
-        else:
-            ctx_prec.append(0.0)
+        # Context precision & recall: prefer ID-based when available
+        retrieved_ids = set(r.get("source_ids", []))
+        relevant_ids = set(r.get("relevant_doc_ids", []))
 
-        # Context recall: coverage of ground-truth context by retrieved chunks
-        if gt_ctx_tok:
-            all_ret = _tokenize(" ".join(r["contexts"]))
-            ctx_rec.append(len(gt_ctx_tok & all_ret) / len(gt_ctx_tok))
+        if relevant_ids and retrieved_ids:
+            hits = retrieved_ids & relevant_ids
+            ctx_prec.append(len(hits) / len(retrieved_ids))
+            ctx_rec.append(len(hits) / len(relevant_ids))
         else:
-            ctx_rec.append(0.0)
+            gt_ctx_tok = _tokenize(" ".join(r.get("ground_truth_contexts", [])))
+            if r["contexts"]:
+                chunk_scores = []
+                for ctx in r["contexts"]:
+                    ct = _tokenize(ctx)
+                    chunk_scores.append(len(ct & gt_ctx_tok) / len(ct) if ct else 0.0)
+                ctx_prec.append(sum(chunk_scores) / len(chunk_scores))
+            else:
+                ctx_prec.append(0.0)
+
+            if gt_ctx_tok:
+                all_ret = _tokenize(" ".join(r["contexts"]))
+                ctx_rec.append(len(gt_ctx_tok & all_ret) / len(gt_ctx_tok))
+            else:
+                ctx_rec.append(0.0)
 
     return {
         "faithfulness": sum(faith) / len(faith) if faith else 0.0,
@@ -126,8 +136,10 @@ def run_evaluation(timeout_seconds: int = TIMEOUT_SECONDS) -> dict:
                 "query": item["query"],
                 "answer": result["answer"],
                 "contexts": result["contexts"],
-                "ground_truth_answer": item["ground_truth_answer"],
-                "ground_truth_contexts": item["ground_truth_contexts"],
+                "source_ids": result.get("source_ids", []),
+                "ground_truth_answer": item.get("ground_truth_answer", ""),
+                "ground_truth_contexts": item.get("ground_truth_contexts", []),
+                "relevant_doc_ids": item.get("relevant_doc_ids", []),
             })
 
         metrics = _compute_metrics(results)
@@ -149,7 +161,7 @@ def run_evaluation(timeout_seconds: int = TIMEOUT_SECONDS) -> dict:
         return _timeout_result(len(eval_set), error=str(e))
 
 
-def _timeout_result(n_queries: int, error: str | None = None) -> dict:
+def _timeout_result(n_queries: int, error=None) -> dict:
     result = {
         "composite_score": 0.0,
         "faithfulness": 0.0,
