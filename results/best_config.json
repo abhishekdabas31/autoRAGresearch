@@ -1,0 +1,27 @@
+{
+  "experiment_id": 7,
+  "composite_score": 0.4781,
+  "metrics": {
+    "faithfulness": 0.861,
+    "answer_relevance": 0.1337,
+    "context_precision": 0.35,
+    "context_recall": 0.6
+  },
+  "timestamp": "2026-03-10T07:00:00Z",
+  "hypothesis": "Retrieve top-10 candidates for broad recall, then cross-encoder reranker filters to best 3. Should improve both precision and recall over pure top-3 dense retrieval.",
+  "change_description": "RETRIEVAL_TOP_K 3\u219210 + USE_RERANKER True (ms-marco-MiniLM, top-3)",
+  "config": {
+    "CHUNK_STRATEGY": "fixed",
+    "CHUNK_SIZE": 250,
+    "CHUNK_OVERLAP": 0,
+    "EMBEDDING_MODEL": "all-MiniLM-L6-v2",
+    "RETRIEVAL_TOP_K": 10,
+    "USE_HYBRID_RETRIEVAL": false,
+    "USE_RERANKER": true,
+    "RERANKER_MODEL": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+    "RERANKER_TOP_K": 3,
+    "LLM_MODEL": "google/flan-t5-small",
+    "MAX_NEW_TOKENS": 64,
+    "SYSTEM_PROMPT": "Answer the question using only the given context. Use one or two sentences."
+  }
+}
