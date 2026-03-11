@@ -29,10 +29,8 @@ RERANKER_TOP_K = 3
 # Generation
 LLM_MODEL = "google/flan-t5-small"
 GENERATION_TEMPERATURE = 0.1
-MAX_NEW_TOKENS = 256
-SYSTEM_PROMPT = """You are a precise question-answering assistant.
-Answer the question using ONLY the provided context.
-If the answer cannot be found in the context, say 'I don't know.'"""
+MAX_NEW_TOKENS = 64
+SYSTEM_PROMPT = "Answer the question using only the given context. Use one or two sentences."
 
 _llm_pipeline = None
 
