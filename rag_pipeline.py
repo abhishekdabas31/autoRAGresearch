@@ -32,9 +32,9 @@ EMBEDDING_BATCH_SIZE = 32
 
 # Retrieval
 RETRIEVAL_TOP_K = 10
-USE_HYBRID_RETRIEVAL = False
+USE_HYBRID_RETRIEVAL = True
 HYBRID_ALPHA = 0.7    # weight for dense (0=pure sparse, 1=pure dense)
-FUSION_METHOD = "linear"  # "linear" or "rrf" (Reciprocal Rank Fusion)
+FUSION_METHOD = "rrf"  # "linear" or "rrf" (Reciprocal Rank Fusion)
 RRF_K = 60            # RRF constant (standard default)
 
 USE_RERANKER = True
