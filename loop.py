@@ -50,19 +50,20 @@ You are an expert RAG systems researcher running an automated optimization exper
 {history}
 
 ## Your Task
-Propose exactly ONE targeted modification to rag_pipeline.py that you hypothesize
-will improve the composite RAGAS score.
+Propose exactly ONE targeted modification to rag_pipeline.py that will improve
+the composite score (NDCG@10 in fast mode, precision+relevance composite in full mode).
 
-Rules:
-- Make only ONE change (one parameter, one function, one strategy)
-- The change must be testable and reversible
-- Do not modify corpus_prep.py or eval.py
-- Explain your hypothesis in a single sentence before the code
-- Return the COMPLETE modified rag_pipeline.py (not a diff)
+CRITICAL RULES — violating any of these will cause your experiment to be rejected:
+1. Implement a NEW TECHNIQUE or swap an EMBEDDING MODEL. Do NOT just change a numeric constant.
+2. If your proposed change can be described as "set X from A to B", it is invalid.
+3. Make only ONE change per experiment (one new function, one model swap, one architecture technique).
+4. Do NOT modify corpus_prep.py or eval.py — they are fixed.
+5. The changed rag_pipeline.py must be syntactically valid Python.
+6. Return the COMPLETE modified rag_pipeline.py (not a diff, not a snippet).
 
 Format your response EXACTLY as:
-HYPOTHESIS: [one sentence explaining why this change should improve the score]
-CHANGE: [one sentence describing what you changed]
+HYPOTHESIS: [one sentence: what technique and why it should improve retrieval quality]
+CHANGE: [one sentence: what function/model you implemented or swapped]
 ---
 [complete modified rag_pipeline.py]
 """
@@ -232,11 +233,12 @@ def run_loop(args):
 
     client = anthropic.Anthropic(api_key=api_key)
     model = args.model
+    fast_mode = args.fast
 
-    # Baseline eval
-    print("autoRAGresearch initialized.")
+    mode_label = "FAST (NDCG@10, retrieval-only)" if fast_mode else "FULL (generation + composite)"
+    print(f"autoRAGresearch initialized — eval mode: {mode_label}")
     print("Running baseline evaluation...")
-    baseline = run_evaluation()
+    baseline = run_evaluation(fast_mode=fast_mode)
     if baseline["timed_out"]:
         print(f"Baseline eval failed: {baseline.get('error', 'timeout')}")
         sys.exit(1)
@@ -315,7 +317,7 @@ def run_loop(args):
         # Evaluate
         print("  Running eval...", end=" ", flush=True)
         t0 = time.time()
-        result = run_evaluation()
+        result = run_evaluation(fast_mode=fast_mode)
         elapsed = time.time() - t0
         print(f"({elapsed:.0f}s)")
 
@@ -331,11 +333,12 @@ def run_loop(args):
             "score_after": new_score,
             "delta": round(delta, 4),
             "kept": False,
+            "eval_mode": "fast" if fast_mode else "full",
             "metrics": {
-                "faithfulness": result["faithfulness"],
-                "answer_relevance": result["answer_relevance"],
-                "context_precision": result["context_precision"],
-                "context_recall": result["context_recall"],
+                "ndcg_at_10": result.get("ndcg_at_10", 0.0),
+                "recall_at_10": result.get("recall_at_10", 0.0),
+                "precision_at_k": result.get("precision_at_k", 0.0),
+                "answer_relevance": result.get("answer_relevance", None),
             },
             "avg_latency_ms": result["avg_latency_ms"],
         }
@@ -377,6 +380,7 @@ def main():
     parser.add_argument("--experiments", type=int, default=None, help="Max experiments to run (default: unlimited)")
     parser.add_argument("--model", type=str, default="claude-sonnet-4-20250514", help="Anthropic model to use")
     parser.add_argument("--dry-run", action="store_true", help="Propose changes without writing or committing")
+    parser.add_argument("--fast", action="store_true", help="Use fast retrieval-only eval (NDCG@10, ~10s per experiment)")
     parser.add_argument("--sleep", type=int, default=5, help="Seconds to pause between experiments")
     args = parser.parse_args()
     run_loop(args)
