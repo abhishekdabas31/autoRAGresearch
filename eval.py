@@ -115,11 +115,25 @@ def run_evaluation(timeout_seconds: int = TIMEOUT_SECONDS, fast_mode: bool = Fal
                 chunks_retrieved = rag_pipeline.retrieve(item["query"], index)
                 # Also apply rerank if enabled (uses no LLM)
                 chunks_retrieved = rag_pipeline.rerank(item["query"], chunks_retrieved)
-                retrieved_ids = [c["source"] for c in chunks_retrieved]
+                # Deduplicate by source ID preserving rank order (correct for
+                # sentence-window / parent-child where multiple chunks share a source)
+                seen_ids = set()
+                deduped = []
+                for c in chunks_retrieved:
+                    if c["source"] not in seen_ids:
+                        seen_ids.add(c["source"])
+                        deduped.append(c)
+                retrieved_ids = [c["source"] for c in deduped]
             else:
                 result = rag_pipeline.run_query(item["query"], index)
-                retrieved_ids = result.get("source_ids", [c["source"] for c in
-                                           rag_pipeline.retrieve(item["query"], index)])
+                # Deduplicate source IDs preserving rank order
+                raw_ids = result.get("source_ids", [])
+                seen_ids = set()
+                retrieved_ids = []
+                for sid in raw_ids:
+                    if sid not in seen_ids:
+                        seen_ids.add(sid)
+                        retrieved_ids.append(sid)
                 ans_tok = _tokenize(result["answer"])
                 gt_tok = _tokenize(item.get("ground_truth_answer", ""))
                 answer_rel_scores.append(_token_f1(ans_tok, gt_tok))
