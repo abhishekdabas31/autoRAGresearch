@@ -3,20 +3,22 @@
 > Autonomous RAG pipeline optimizer. The agent iterates. You sleep.
 > Inspired by Andrej Karpathy's [autoresearch](https://github.com/karpathy/autoresearch).
 
-## Current Best Score: **0.4781** (Experiment #7)
+## Current Best Score: **NDCG@10 = 0.5678** (Experiment #11)
 
-| # | Score | Delta | Change | Status |
+> Metric switched to **NDCG@10** (fast retrieval-only, ~90s) in experiment 8. Prior experiments used a full-pipeline composite that included biased faithfulness scores.
+> Published SBERT (all-MiniLM-L6-v2) baseline on BeIR/SciFact: **0.574**
+
+| # | NDCG@10 | Delta | Change | Status |
 |---|---|---|---|---|
-| 7 | **0.4781** | +0.0022 | top_k 3→10 + cross-encoder reranking to top-3 | ✅ Kept |
-| 4 | 0.4759 | +0.0147 | RETRIEVAL_TOP_K 5→3 | ✅ Kept |
-| 3 | 0.4612 | +0.3051 | Concise prompt + MAX_NEW_TOKENS 256→64 | ✅ Kept |
-| 1 | 0.1561 | +0.0325 | CHUNK_SIZE 512→250, CHUNK_OVERLAP 50→0 | ✅ Kept |
-| 0 | 0.1236 | baseline | Initial naive config (SciFact + all-MiniLM-L6-v2 + flan-t5-small) | — |
-| 6 | — | -0.0047 | T5-native `question: context:` prompt format | ❌ Reverted |
-| 5 | — | -0.0681 | Hybrid retrieval BM25+dense alpha=0.3 | ❌ Reverted |
-| 2 | — | -0.0226 | Paragraph chunking strategy | ❌ Reverted |
+| 11 | **0.5678** | +0.0064 | RRF hybrid retrieval (BM25 + dense) | ✅ Kept |
+| 10 | 0.5614 | +0.0167 | parent_child chunking (80-char children, full parent as context) | ✅ Kept |
+| 9  | 0.5447 | +0.0483 | BGE-small-en-v1.5 embedding + whole_doc | ✅ Kept |
+| 8  | 0.5243 | +0.0279 | sentence_window chunking (WINDOW_SIZE=2) + eval dedup fix | ✅ Kept |
+| —  | 0.4964 | baseline | Strategic rebuild: whole_doc + all-MiniLM-L6-v2 + reranker | — |
+| 12 | 0.5240 | -0.0438 | sentence_window + BGE-small + RRF (BGE needs passage-length text) | ❌ Reverted |
+| 9a | 0.5114 | — | BGE-small + sentence_window (regression, wrong domain for BGE) | ❌ Reverted |
 
-**Total improvement from baseline: +0.3545 (+287%)** across 7 experiments, ~5 hours wall time.
+**Total improvement from honest baseline: +0.0714 (+14.4%)** in 5 experiments, closing to within **0.006 of published SBERT baseline**.
 
 ---
 
@@ -257,13 +259,25 @@ autoRAGresearch/
 - The agent can propose changes no parameter grid would have included.
 - The git history is human-readable — you see *why* each change worked.
 
+## Key Findings
+
+### What Works on SciFact
+1. **Parent-child chunking** — Indexing sub-phrase children (80 chars) while returning full abstracts as context gives the best of both worlds: precise embedding targets + rich generation context.
+2. **BGE-small-en-v1.5 + whole/parent-level indexing** — BGE is trained for passage-level retrieval. Pairing it with passage-length indexed texts (+query instruction prefix) beats all-MiniLM by 4.8 NDCG points.
+3. **RRF Hybrid (BM25 + dense)** — SciFact's exact scientific terminology (gene names, drug compounds) favors BM25. RRF fusion stacks on top of dense with no new hyperparameter.
+4. **sentence_window + all-MiniLM** — A strong pairing when you want recall gains without changing the embedding model.
+
+### What Doesn't Work
+- BGE-small + sentence-level indexing: model is trained on passage-length text; short sentences hurt its representation quality.
+- All-MiniLM + BGE's query prefix: the prefix is BGE-specific and likely confuses other models.
+
 ## Next Experiments (planned)
 
-- Upgrade to `flan-t5-base` (250M params) to improve answer_relevance
-- Try `MULTI_QUERY` retrieval — generate 3 query variants, merge results
-- Test hybrid retrieval with better alpha tuning (0.6–0.8 dense-heavy)
-- Experiment with sentence-level chunking with a 200-char max
-- Try `all-mpnet-base-v2` embedding model (stronger but slower)
+- Try `allenai/specter2` — scientific-domain pre-trained, should outperform general BGE on SciFact
+- Try `malteos/scincl` — trained specifically on scientific citation graphs
+- Increase `CHILD_CHUNK_SIZE` to 150–200 chars (currently 80) to test optimal granularity
+- Add title-prepend to child chunks: `{title}: {child_text}` for better topic grounding
+- Try `RERANKER_MODEL = "cross-encoder/ms-marco-electra-base"` (stronger reranker)
 
 ## CLI Options
 
