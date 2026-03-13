@@ -1,174 +1,146 @@
 # autoRAGresearch — Research Program
 
 ## Dataset and Eval Mode
-- **Corpus:** BeIR/SciFact — 5,183 scientific abstracts (passage-level retrieval unit)
-- **Eval:** NDCG@10 (fast mode, ~10s) — comparable to published BeIR baselines
-- **Published baselines for reference:** BM25=0.665 NDCG@10, SBERT(all-MiniLM)=0.574, DPR=0.318
-- **Current starting point:** Run `python eval.py --fast` to measure
-
-## Objective
-Maximize NDCG@10 on the 30 fixed SciFact eval queries by implementing RAG techniques
-that would transfer to any scientific or domain-specific corpus — not just SciFact.
+- **Corpus:** BeIR/SciFact — 5,183 scientific abstracts
+- **Eval:** NDCG@10 (fast mode, ~90s per experiment)
+- **Published baselines:** BM25=0.665, SBERT(all-MiniLM)=0.574, DPR=0.318
+- **Current best:** Check results/best_config.json
 
 ---
 
-## THE ONE RULE FOR ALL EXPERIMENTS
+## Your Job: Researcher, Not Tuner
 
-**Every experiment must implement a new function or swap an embedding model.**
-A change that can be described as "set X from A to B" is not a valid experiment.
-The test: could this change transfer to a completely different corpus with the same code?
-If yes, it's valid. If it relies on SciFact-specific tuning, it's not.
+You are not optimizing parameters. You are discovering *why* this pipeline fails
+on specific queries and implementing architectural fixes for those failure modes.
 
----
+The difference:
+- A tuner says: "I'll try chunk_size=200, maybe that helps."
+- A researcher says: "Query 7 retrieves the wrong doc because the question uses
+  the word 'mechanism' while the relevant abstract uses 'pathway'. This is a
+  vocabulary gap. I'll implement HyDE to bridge it by generating an intermediate
+  document."
 
-## Research Roadmap — 3 Tiers, in Priority Order
-
-### Tier 1 — Retrieval Architecture Techniques
-These require writing new code. They are the highest-leverage and most generalizable experiments.
-
----
-
-**Technique A: Sentence-Window Retrieval**
-
-What it is: Index documents at the sentence level for precise matching. When a sentence
-is retrieved, return the surrounding ±WINDOW_SIZE sentences as the actual context.
-This gives precision of sentence-level indexing with the coherence of paragraph-level context.
-
-Why it matters: SciFact abstracts contain 4-8 sentences. A single relevant sentence is often
-more precisely matchable than a full 250-char chunk. But one sentence alone lacks context
-for a good answer. Sentence-window solves both problems simultaneously.
-
-How to implement: `CHUNK_STRATEGY = "sentence_window"` is already wired in rag_pipeline.py.
-The `chunk_documents()` function handles it when this strategy is set. It stores both the
-sentence (for indexing) and `context_window` (for generation). The `assemble_context()`
-function already uses `context_window` when this strategy is active. Set `WINDOW_SIZE = 2`.
-
-Expected gain: Should improve NDCG@10 by surfacing more precise sentence-level matches
-while keeping generated answers coherent. Generalizes to any corpus with multi-sentence passages.
+**Every experiment must start from a specific failure diagnosis.**
 
 ---
 
-**Technique B: Parent-Child Chunking**
+## MANDATORY PROTOCOL — Do This Before Every Proposal
 
-What it is: Index small child chunks (~80 chars) for precise retrieval. Each child stores
-its parent passage ID. After retrieval, deduplicate by parent ID and return the full parent
-passage as context. Decouples retrieval precision from context quality.
+### Step 1: Diagnose current failures
+Look at the per-query scores in the experiment history. Identify 2-3 queries that
+are consistently scoring low (NDCG < 0.3 for those queries). Ask: what is the
+failure mode? Options are:
+- **Vocabulary gap:** query uses different words than the relevant document
+- **Granularity mismatch:** right information is in a specific sentence but
+  the retrieved chunk is too broad or too narrow
+- **Ranking failure:** the right doc is retrieved but ranked too low
+- **Multi-aspect query:** query requires multiple facts from different documents
+- **Specificity mismatch:** query is very specific but index has it at wrong level
 
-Why it matters: Dense retrieval on 250-char chunks forces a precision-recall tradeoff.
-Small chunks = precise matching but thin context. Large chunks = rich context but noisy matching.
-Parent-child breaks this tradeoff: retrieval sees small units, generation sees full passages.
+### Step 2: Propose one architectural change that addresses that failure mode
+The change must add new code — a new function, a new retrieval strategy, a new
+processing step. It cannot be a number change alone.
 
-How to implement: `CHUNK_STRATEGY = "parent_child"` is wired in rag_pipeline.py.
-`chunk_documents()` creates child chunks with `full_parent_text` stored.
-`assemble_context()` deduplicates by source and uses `full_parent_text`.
-Set `CHILD_CHUNK_SIZE = 80`.
+Ask yourself: "If I removed all the configuration constants and kept only the
+functions, would this experiment still represent a different approach?" If yes,
+it's valid. If no, it's a parameter change. Do not submit it.
 
-Expected gain: Should increase both Precision@K and Recall@10 simultaneously.
-Classic technique from LlamaIndex, transfers to any corpus.
+### Step 3: Predict specifically which queries will improve and why
+Name the failure mode. Name the queries. Name the mechanism. If you can't do this,
+you don't have a hypothesis — you have a guess. Go back to Step 1.
 
----
-
-**Technique C: HyDE (Hypothetical Document Embeddings)**
-
-What it is: Instead of embedding the raw query, generate a synthetic answer passage first
-(using the LLM), then embed that as the retrieval query. The synthetic passage has more
-vocabulary overlap with the actual abstracts than the short question does.
-
-Why it matters: The query "Does CRISPR edit DNA?" is short and sparse. The relevant abstract
-begins "CRISPR-Cas9 is a genome editing tool that cleaves double-stranded DNA...". The
-vocabulary gap between query and document reduces recall. A synthetic answer paragraph
-bridges this gap.
-
-How to implement: `USE_HyDE = True` is wired in rag_pipeline.py.
-The `generate_hypothetical_doc(query)` function already exists — it calls the local LLM
-to produce a hypothetical passage, which is then embedded by `retrieve()`.
-Warning: adds one LLM call per query, so fast_mode eval will be slower. Test at ~20-30s.
-
-Expected gain: Known to improve recall by 5-15% on scientific corpora (Gao et al. 2022).
-Generalizes to any domain with vocabulary mismatch between queries and documents.
+### Step 4: Update the theory
+After every experiment (pass or fail), write one sentence explaining what this
+result taught you about how the pipeline works. This goes in THEORY_UPDATE.
+"The experiment failed" is not a valid theory update. "Parent-child and
+sentence-window conflict because both solve retrieval granularity — combining
+them creates redundant de-duplication that hurts recall" is a valid theory update.
 
 ---
 
-**Technique D: Multi-Query Retrieval**
+## What Counts as Innovation vs Tuning
 
-What it is: Generate N rephrasings of the query, retrieve independently for each,
-union all result sets before reranking. Improves recall on queries that have multiple
-valid phrasings or are ambiguous.
+### INNOVATION (valid experiments):
+- Implementing a new retrieval function (adaptive routing, iterative retrieval,
+  late chunking, FLARE-style dynamic retrieval)
+- Changing how queries are represented before retrieval (HyDE, step-back prompting,
+  multi-query expansion)
+- Changing the indexing architecture (multi-granularity index, summary+chunk index)
+- Adding a new scoring/reranking step with new logic
+- Changing the fundamental flow of the pipeline (retrieve→generate→re-retrieve)
 
-Why it matters: "What enzyme is responsible for DNA repair?" might miss a passage that
-answers "Nuclease activity in DNA damage response." A rephrasing like "Which protein
-performs DNA repair?" would catch it. Union retrieval finds both.
+### TUNING (invalid, will be flagged):
+- Changing CHUNK_SIZE, CHUNK_OVERLAP, RETRIEVAL_TOP_K, HYBRID_ALPHA alone
+- Swapping a model string without implementing new surrounding logic
+- Changing prompt templates or MAX_NEW_TOKENS
+- Re-trying a previously failed technique with different constants
 
-How to implement: `USE_QUERY_EXPANSION = True` with `QUERY_EXPANSION_N = 3`.
-The `expand_query(query, n)` function already exists — it calls the LLM to generate
-rephrasings and `retrieve()` unions results across all expanded queries.
-Also adds LLM overhead, similar to HyDE.
-
-Expected gain: +5-10% recall, especially on queries with specialized terminology.
-Transfers to any corpus with vocabulary-diverse queries.
-
----
-
-### Tier 2 — Embedding Models
-These are model swaps (one-line changes to EMBEDDING_MODEL). Implement after at least one
-Tier 1 technique succeeds. Each swap should be combined with the best Tier 1 architecture.
-
-**Models to try in this order:**
-
-1. `BAAI/bge-small-en-v1.5` — MTEB leaderboard top performer, same size as all-MiniLM,
-   trained with better contrastive objectives. Drop-in swap. Published NDCG@10 on SciFact: ~0.60.
-
-2. `allenai/specter2` (with `allenai/specter2_base`) — Trained on scientific paper citations.
-   Built specifically for scientific literature retrieval. Likely outperforms general-purpose
-   models on SciFact. Slightly larger (110M). Use `trust_remote_code=True`.
-
-3. `malteos/scincl` — Trained on biomedical + scientific paper relationships.
-   SciNCL uses citation graph data similar to SciFact's domain.
-
-Note: Always run `python eval.py --fast` before and after an embedding model swap to confirm
-the change actually improved NDCG@10 and wasn't just a model size change.
+Model swaps are only valid when paired with architectural justification:
+"I'm switching to SPECTER2 because SPECTER2 encodes citation-graph relationships
+which directly addresses the vocabulary gap failure mode in queries 3, 7, 14."
+A model swap with no failure-mode reasoning is still tuning.
 
 ---
 
-### Tier 3 — Fusion Techniques
-Implement these after Tier 1 and Tier 2 are stable. These are architectural changes to
-how dense and sparse signals are combined.
+## Response Format — Use This Exactly
 
-**Reciprocal Rank Fusion (RRF) for hybrid retrieval:**
+```
+FAILURE_ANALYSIS: [which 2-3 queries are failing, what failure mode they exhibit,
+what evidence in the retrieved results points to that failure mode]
 
-What it is: When combining BM25 and dense retrieval, use RRF instead of linear score
-blending. RRF is parameter-free — it combines rankings rather than scores, which avoids
-the normalization brittleness that caused BM25 alpha=0.3 to fail.
+MECHANISM: [how your proposed change directly addresses that failure mode —
+be specific about the causal chain, not just "this should improve score"]
 
-How to implement: Set `USE_HYBRID_RETRIEVAL = True` and `FUSION_METHOD = "rrf"`.
-The `_rrf_fusion()` function already exists in rag_pipeline.py and `retrieve()` calls it
-when `FUSION_METHOD = "rrf"`.
+THEORY_UPDATE: [one sentence updating the running theory of how this pipeline
+works — should add new information, not restate the hypothesis]
 
-Why previous BM25 failed: We used linear blending with max-norm normalization. BM25 scores
-on SciFact have high variance, causing the normalization to suppress the dense signal.
-RRF avoids this entirely — it's rank-based, not score-based.
-
-Expected gain: Previously hybrid retrieval lost 0.07 composite score. With RRF, it should
-recover at minimum to neutral and potentially add +0.02-0.05 on recall.
+CHANGE: [one sentence: what you implemented or swapped]
+---
+[complete modified rag_pipeline.py]
+```
 
 ---
 
-## Experiments NOT to run
+## Technique Directions (Not a Menu — Use Only When Failure Analysis Points Here)
 
-These are explicitly out of scope because they are parameter changes, not technique implementations:
+**Vocabulary gap failures → HyDE or Step-back prompting**
+Generate an intermediate document that bridges query vocabulary to document
+vocabulary. HyDE is wired in (`USE_HyDE = True`). Prefer a capable generator
+(LLaMA 3.2 via Ollama if available) over flan-t5-small, which generates
+3-word fragments rather than hypothetical passages.
 
-- Changing CHUNK_SIZE, CHUNK_OVERLAP, RETRIEVAL_TOP_K, HYBRID_ALPHA, MAX_NEW_TOKENS alone
-- Changing GENERATION_TEMPERATURE
-- Changing RERANKER_TOP_K alone
-- Re-trying paragraph or sentence chunking with different sizes
-- Any change that only modifies a constant, not a function or model
+**Granularity mismatch → Late chunking or multi-granularity index**
+Current parent-child is already implemented. Late chunking is the next level:
+embed the whole document, derive chunk embeddings from document embedding via
+attention pooling — this preserves document-level context in chunk representations.
 
-If you find yourself proposing a number change, stop and propose a technique instead.
+**Ranking failure → Learned sparse retrieval (SPLADE) or adaptive routing**
+BM25=0.665 beats dense retrieval on SciFact because scientific queries use exact
+terminology. SPLADE learns to expand both query and document at index time,
+combining BM25's exact-match strength with semantic generalization. This is
+architecturally different from the current BM25+dense hybrid.
+
+**Multi-aspect queries → Iterative or multi-hop retrieval**
+After initial retrieval, identify what information is still missing from the
+context. Generate a follow-up query targeting the gap. Retrieve again. Merge
+context. This is a fundamental change to the pipeline flow.
+
+**Specificity mismatch → Query decomposition**
+Break complex queries into sub-questions. Retrieve for each sub-question
+independently. Merge and deduplicate. Good for queries about relationships
+between concepts.
 
 ---
 
-## How to know if an experiment is valid
+## Efficiency Constraint
 
-Ask: "Could this exact code run unchanged on a financial document corpus or a legal corpus?"
-If yes — the experiment is valid. It implements a generalizable technique.
-If no — the change is SciFact-specific tuning. Do not run it.
+Latency matters. If a technique adds more than 3x latency for less than 0.02 NDCG
+gain, it is not worth keeping. Always report avg_latency_ms alongside NDCG@10.
+A technique that gets 0.59 NDCG at 200ms is more valuable than 0.60 NDCG at 4000ms.
+
+---
+
+## Fixed Files (Never Edit)
+- `corpus_prep.py` — data loading, do not touch
+- `eval.py` — evaluation arena, do not touch
+- `loop.py` — orchestrator, do not touch

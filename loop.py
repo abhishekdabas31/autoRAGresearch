@@ -29,6 +29,7 @@ load_dotenv()
 ROOT = Path(__file__).parent
 PIPELINE_PATH = ROOT / "rag_pipeline.py"
 PROGRAM_PATH = ROOT / "program.md"
+THEORY_PATH = ROOT / "theory.md"
 EXPERIMENTS_PATH = ROOT / "results" / "experiments.jsonl"
 BEST_CONFIG_PATH = ROOT / "results" / "best_config.json"
 README_PATH = ROOT / "README.md"
@@ -46,15 +47,18 @@ You are an expert RAG systems researcher running an automated optimization exper
 ## Research Program
 {program_md}
 
+## Running Theory of the Pipeline
+{theory_md}
+
 ## Recent Experiment History (last 10)
 {history}
 
 ## Your Task
-Propose exactly ONE targeted modification to rag_pipeline.py that will improve
-the composite score (NDCG@10 in fast mode, precision+relevance composite in full mode).
+Before proposing a change, you MUST diagnose which specific queries are failing
+and why. Then propose ONE architectural fix targeted at that failure mode.
 
 CRITICAL RULES — violating any of these will cause your experiment to be rejected:
-1. Implement a NEW TECHNIQUE or swap an EMBEDDING MODEL. Do NOT just change a numeric constant.
+1. Implement a NEW TECHNIQUE or swap an EMBEDDING/RERANKER MODEL. Do NOT just change a numeric constant.
 2. If your proposed change can be described as "set X from A to B", it is invalid.
 3. Make only ONE change per experiment (one new function, one model swap, one architecture technique).
 4. Do NOT modify corpus_prep.py or eval.py — they are fixed.
@@ -62,8 +66,11 @@ CRITICAL RULES — violating any of these will cause your experiment to be rejec
 6. Return the COMPLETE modified rag_pipeline.py (not a diff, not a snippet).
 
 Format your response EXACTLY as:
-HYPOTHESIS: [one sentence: what technique and why it should improve retrieval quality]
-CHANGE: [one sentence: what function/model you implemented or swapped]
+FAILURE_ANALYSIS: [which 2-3 queries are failing and why — name the failure mode: \
+vocabulary gap / granularity mismatch / ranking failure / multi-aspect / other]
+MECHANISM: [how your change addresses those specific failures — causal chain, not just "this should help"]
+THEORY_UPDATE: [one sentence updating what is now known about how this pipeline works]
+CHANGE: [one sentence: what you implemented or swapped]
 ---
 [complete modified rag_pipeline.py]
 """
@@ -108,15 +115,31 @@ def next_experiment_id() -> int:
     return 1
 
 
-def parse_agent_response(response: str) -> tuple[str, str, str]:
-    """Extract hypothesis, change description, and code from the agent response."""
+def parse_agent_response(response: str) -> tuple:
+    """Extract all structured fields and code from the agent response.
+
+    Returns: (hypothesis, change_desc, code, failure_analysis, mechanism, theory_update)
+    For backward compatibility, hypothesis is synthesized from FAILURE_ANALYSIS + MECHANISM
+    when the new format is used.
+    """
     hypothesis, change, code = "", "", ""
+    failure_analysis, mechanism, theory_update = "", "", ""
 
     for line in response.split("\n"):
         if line.startswith("HYPOTHESIS:"):
             hypothesis = line.replace("HYPOTHESIS:", "").strip()
+        elif line.startswith("FAILURE_ANALYSIS:"):
+            failure_analysis = line.replace("FAILURE_ANALYSIS:", "").strip()
+        elif line.startswith("MECHANISM:"):
+            mechanism = line.replace("MECHANISM:", "").strip()
+        elif line.startswith("THEORY_UPDATE:"):
+            theory_update = line.replace("THEORY_UPDATE:", "").strip()
         elif line.startswith("CHANGE:"):
             change = line.replace("CHANGE:", "").strip()
+
+    # New format uses FAILURE_ANALYSIS instead of HYPOTHESIS — synthesize one
+    if not hypothesis and failure_analysis:
+        hypothesis = failure_analysis
 
     if "---" in response:
         after_separator = response.split("---", 1)[1]
@@ -131,7 +154,14 @@ def parse_agent_response(response: str) -> tuple[str, str, str]:
     elif "```python" in response:
         code = response.split("```python", 1)[1].split("```", 1)[0]
 
-    return hypothesis.strip(), change.strip(), code.strip()
+    return (
+        hypothesis.strip(),
+        change.strip(),
+        code.strip(),
+        failure_analysis.strip(),
+        mechanism.strip(),
+        theory_update.strip(),
+    )
 
 
 def validate_python(code: str) -> bool:
@@ -244,12 +274,11 @@ def run_loop(args):
         sys.exit(1)
 
     best_score = baseline["composite_score"]
+    ndcg = baseline.get("ndcg_at_10", 0.0)
+    recall = baseline.get("recall_at_10", 0.0)
     print(
-        f"Baseline eval: composite_score={best_score:.4f} | "
-        f"faithfulness={baseline['faithfulness']:.4f} | "
-        f"answer_relevance={baseline['answer_relevance']:.4f} | "
-        f"context_precision={baseline['context_precision']:.4f} | "
-        f"context_recall={baseline['context_recall']:.4f}\n"
+        f"Baseline eval: NDCG@10={ndcg:.4f} | Recall@10={recall:.4f} | "
+        f"composite={best_score:.4f}\n"
     )
 
     exp_count = 0
@@ -261,11 +290,13 @@ def run_loop(args):
 
         pipeline_code = PIPELINE_PATH.read_text()
         program_md = PROGRAM_PATH.read_text() if PROGRAM_PATH.exists() else "No program.md found."
+        theory_md = THEORY_PATH.read_text() if THEORY_PATH.exists() else "No theory yet — this is early research."
         history = load_history()
 
         prompt = AGENT_PROMPT.format(
             pipeline_code=pipeline_code,
             program_md=program_md,
+            theory_md=theory_md,
             history=history,
         )
 
@@ -283,13 +314,17 @@ def run_loop(args):
             time.sleep(30)
             continue
 
-        hypothesis, change_desc, new_code = parse_agent_response(agent_text)
+        (hypothesis, change_desc, new_code,
+         failure_analysis, mechanism, theory_update) = parse_agent_response(agent_text)
+
         if not hypothesis:
             hypothesis = "Unnamed hypothesis"
         if not change_desc:
             change_desc = "Undescribed change"
 
-        print(f"  Hypothesis: {hypothesis}")
+        print(f"  Failure analysis: {failure_analysis or '(none provided)'}")
+        print(f"  Mechanism: {mechanism or '(none provided)'}")
+        print(f"  Change: {change_desc}")
 
         if not new_code or not validate_python(new_code):
             print("  ❌ Agent returned invalid Python. Skipping.")
@@ -308,6 +343,15 @@ def run_loop(args):
             })
             time.sleep(args.sleep)
             continue
+
+        # Code-diff validation: warn if no new functions or imports were added
+        old_defs = pipeline_code.count("\ndef ")
+        new_defs = new_code.count("\ndef ")
+        old_imports = {l for l in pipeline_code.split("\n") if l.startswith("import") or l.startswith("from")}
+        new_imports = {l for l in new_code.split("\n") if l.startswith("import") or l.startswith("from")}
+        if new_defs <= old_defs and new_imports == old_imports:
+            print(f"  ⚠️  WARNING: No new functions or imports detected (defs: {old_defs}->{new_defs}). "
+                  f"This may be a parameter-only change. Proceeding anyway.")
 
         # Write the new pipeline
         backup = pipeline_code
@@ -328,6 +372,9 @@ def run_loop(args):
             "experiment_id": exp_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "hypothesis": hypothesis,
+            "failure_analysis": failure_analysis,
+            "mechanism": mechanism,
+            "theory_update": theory_update,
             "change_description": change_desc,
             "score_before": best_score,
             "score_after": new_score,
@@ -359,6 +406,13 @@ def run_loop(args):
                 PIPELINE_PATH.write_text(backup)
 
         log_experiment(exp_record)
+
+        # Append theory update to theory.md
+        if theory_update and not args.dry_run:
+            result_symbol = "✅" if exp_record["kept"] else "❌"
+            entry = f"\n- Exp #{exp_id} {result_symbol}: {theory_update}"
+            with open(THEORY_PATH, "a") as f:
+                f.write(entry)
 
         # Update README leaderboard
         if EXPERIMENTS_PATH.exists():
