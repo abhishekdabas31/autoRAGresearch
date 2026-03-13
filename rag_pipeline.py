@@ -20,14 +20,14 @@ from corpus_prep import load_documents, get_embedding_model
 # "sentence"  = sentence-boundary splitting
 # "sentence_window" = index sentences, return surrounding window as context
 # "parent_child"    = index small child chunks, return parent passage as context
-CHUNK_STRATEGY = "sentence_window"
+CHUNK_STRATEGY = "whole_doc"
 CHUNK_SIZE = 250
 CHUNK_OVERLAP = 0
 WINDOW_SIZE = 2       # for sentence_window: sentences before/after match to include
 CHILD_CHUNK_SIZE = 80 # for parent_child: size of child chunks for indexing
 
 # Embedding
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 EMBEDDING_BATCH_SIZE = 32
 
 # Retrieval
@@ -234,9 +234,14 @@ def retrieve(query: str, index: dict, top_k=None) -> list:
     else:
         all_queries = [retrieval_query]
 
+    # BGE models require a query instruction prefix for asymmetric retrieval
+    bge_prefix = "Represent this sentence for searching relevant passages: "
+    use_bge_prefix = "bge" in EMBEDDING_MODEL.lower()
+
     seen, merged_chunks = set(), []
     for q in all_queries:
-        q_emb = model.encode([q], normalize_embeddings=True).astype("float32")
+        encoded_q = (bge_prefix + q) if use_bge_prefix else q
+        q_emb = model.encode([encoded_q], normalize_embeddings=True).astype("float32")
         scores_arr, indices_arr = index["faiss_index"].search(q_emb, top_k)
 
         if USE_HYBRID_RETRIEVAL and index["bm25"] is not None:
