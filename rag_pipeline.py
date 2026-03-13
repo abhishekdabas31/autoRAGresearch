@@ -20,7 +20,7 @@ from corpus_prep import load_documents, get_embedding_model
 # "sentence"  = sentence-boundary splitting
 # "sentence_window" = index sentences, return surrounding window as context
 # "parent_child"    = index small child chunks, return parent passage as context
-CHUNK_STRATEGY = "whole_doc"
+CHUNK_STRATEGY = "parent_child"
 CHUNK_SIZE = 250
 CHUNK_OVERLAP = 0
 WINDOW_SIZE = 2       # for sentence_window: sentences before/after match to include
